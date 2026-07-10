@@ -28,6 +28,10 @@ class Contrato(Base):
     id_inquilino: Mapped[int] = mapped_column(
         ForeignKey("inquilinos.id")
     )
+    
+    id_proprietario: Mapped[int] = mapped_column(
+        ForeignKey("proprietarios.id")
+    )
 
     data_inicio: Mapped[Date] = mapped_column(Date)
 
@@ -44,5 +48,10 @@ class Contrato(Base):
 
     inquilino = relationship(
         "Inquilino",
+        back_populates="contratos"
+    )
+    
+    proprietario = relationship(
+        "Proprietario",
         back_populates="contratos"
     )
