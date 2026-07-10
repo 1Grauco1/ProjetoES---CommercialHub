@@ -1,0 +1,29 @@
+from __future__ import annotations
+
+from sqlalchemy import ForeignKey, Text,String, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base
+
+
+class Proprietario(Base):
+    __tablename__ = "proprietarios"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    id_pessoa: Mapped[int] = mapped_column(
+        ForeignKey("pessoas.id"),
+        unique=True
+    )
+
+    documentos: Mapped[str] = mapped_column(Text)
+
+    pessoa = relationship(
+        "Pessoa",
+        back_populates="proprietario"
+    )
+
+    salas: Mapped[list["Sala"]] = relationship(
+        "Sala",
+        back_populates="proprietario"
+    )
