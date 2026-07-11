@@ -12,8 +12,7 @@ def home():
 
 @router.post("/login")
 def login(dados_login : auth_schemas.Login, db = Depends(get_db)):
-    login = auth_service.checar_login(db, dados_login)
-    
+    login = auth_service.realizar_login(db, dados_login)
     return {"login" : login}
 
 @router.post("/criar_conta")

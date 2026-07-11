@@ -5,6 +5,7 @@ from enum import Enum
 from sqlalchemy import Enum as SQLEnum
 
 from app.models.base import Base
+from app.models.contrato import Contrato
 
 
 

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from sqlalchemy import ForeignKey, Text,String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.models.base import Base
+from app.models.sala import Sala
+from app.models.contrato import Contrato
 
 
 class Proprietario(Base):
@@ -20,6 +21,10 @@ class Proprietario(Base):
 
     pessoa = relationship(
         "Pessoa",
+        back_populates="proprietario"
+    )
+    contratos: Mapped[list["Contrato"]] = relationship(
+        "Contrato",
         back_populates="proprietario"
     )
 

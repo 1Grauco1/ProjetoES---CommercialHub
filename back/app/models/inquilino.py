@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+from app.models.contrato import Contrato
 
 
 class Inquilino(Base):

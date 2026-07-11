@@ -18,7 +18,7 @@ ALGORITHM = "HS256"
 def criar_access_token(data: dict):
     payload = data.copy()
 
-    payload["exp"] = datetime.now(timezone.utc) + timedelta(minutes=45)
+    payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=6)
 
     return jwt.encode(
         payload,

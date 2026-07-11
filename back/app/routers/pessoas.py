@@ -1,15 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from app.crud import pessoa_crud
+from app.dependencies.db_dependencie import get_db
+
 router = APIRouter(prefix= "/usuario", tags= ["usuario"])
 
 @router.get("/")
-async def Usuario():
+async def Home():
     return {"mensagem": "tela de usuario"}
 
-@router.post("/registrar_usuario")
-async def CriarUsuario():
-    return pessoa_crud.criar_pessoa()
 
 @router.get("/")
-async def Usuario():
-    return pessoa_crud.listar_pessoa()
+async def Usuario(db = Depends(get_db)):
+    return pessoa_crud.listar_pessoa(db)

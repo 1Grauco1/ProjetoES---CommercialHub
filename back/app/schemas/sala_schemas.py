@@ -24,13 +24,7 @@ class SalaResponse(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
     
-class SalaUpdatePut(BaseModel):
-    
-    id_endereco : int
-    tamanho : float
-    preco : float
-    status_ocupacao : StatusSala
-    fotos : str
+
 
 class SalaUpdatePatch(BaseModel):
     

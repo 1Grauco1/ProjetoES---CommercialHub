@@ -5,7 +5,7 @@ from app.core.security import verificar_senha, criar_access_token
 
 from sqlalchemy.orm import Session
 
-def checar_login(db : Session, dados_login : auth_schemas.Login):
+def realizar_login(db : Session, dados_login : auth_schemas.Login):
     try:
         
         usuario_buscado = usuario_crud.buscar_email(db, dados_login.email)

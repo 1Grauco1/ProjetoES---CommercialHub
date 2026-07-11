@@ -14,7 +14,7 @@ def listar_pessoa(db:Session):
     return db.query(Pessoa).all()
 
 def buscar_pessoa(db:Session, id_pessoa : int):
-     return db.query(Pessoa).filter_by(id)
+     return db.query(Pessoa).filter(Pessoa.id==id_pessoa).first()
 
 def editar_pessoa(db : Session, dados_pessoa_update : pessoa_schemas.PessoaUpdate, id : int ):
      
@@ -27,7 +27,7 @@ def editar_pessoa(db : Session, dados_pessoa_update : pessoa_schemas.PessoaUpdat
           exclude_unset= True
      )
      
-     for campo, valor in dados.items:
+     for campo, valor in dados.items():
           setattr(pessoa,campo,valor)
      
      db.commit()
