@@ -32,11 +32,11 @@ def criar_endereco(
 
 def listar_endereco_usuario(db: Session, id_pessoa: int):
 
-    return db.query(Endereco).filter_by(id_pessoa=id_pessoa)all()
+    return db.query(Endereco).filter_by(id_pessoa=id_pessoa).all()
 
 
 def buscar_endereco(db: Session, id_endereco: int):
-    return db.query(Endereco).filter_by(id_endereco).first()
+    return db.query(Endereco).filter_by(id=id_endereco).first()
 
 
 def editar_endereco(

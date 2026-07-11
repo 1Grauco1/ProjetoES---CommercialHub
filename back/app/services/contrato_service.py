@@ -1,6 +1,6 @@
 from app.crud import contrato_crud, sala_crud
 from app.models.sala import StatusSala
-from app.schemas import contrato_schemas
+from app.schemas import contrato_schemas, sala_schemas
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,7 @@ def criar_contrato(db: Session, dados: contrato_schemas.ContratoCreate):
         sala_crud.editar_sala(
             db,
             dados.id_sala,
-            contrato_schemas.SalaUpdatePatch(status_ocupacao=StatusSala.ALUGADA),
+            sala_schemas.SalaUpdatePatch(status_ocupacao=StatusSala.ALUGADA),
         )
         return contrato
     except HTTPException:

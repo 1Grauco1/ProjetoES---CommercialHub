@@ -8,7 +8,7 @@ def criar_contrato(db: Session, dados_contrato: contrato_schemas.ContratoCreate)
     contrato = Contrato(**dados_contrato.model_dump())
 
     db.add(contrato)
-    db.commit()
+    db.flush()
     db.refresh(contrato)
 
     return contrato
@@ -22,6 +22,10 @@ def listar_contrato_inquilino(db: Session, id_usuario: int):
 def listar_contrato_proprietario(db: Session, id_usuario: int):
 
     return db.query(Contrato).filter(Contrato.id_proprietario == id_usuario).all()
+
+
+def listar_contratos(db: Session):
+    return db.query(Contrato).all()
 
 
 def buscar_contrato(db: Session, id: int):
@@ -61,4 +65,3 @@ def remover_contrato(db: Session, id_contrato: int):
         return contrato
 
     return None
-

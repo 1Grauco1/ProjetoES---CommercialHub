@@ -1,7 +1,6 @@
+from app.core.config import DATABASE_URL
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-DATABASE_URL = "sqlite:///CHdatabase.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 

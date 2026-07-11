@@ -33,4 +33,3 @@ class EnderecoUpdate(BaseModel):
     cidade: Optional[str] = None
     estado: Optional[str] = None
     cep: Optional[str] = None
-

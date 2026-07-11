@@ -1,6 +1,5 @@
 from typing import Optional
 
-from app.models.usuario import NivelAcesso
 from pydantic import BaseModel, ConfigDict
 
 
@@ -23,4 +22,3 @@ class PessoaUpdate(BaseModel):
     nome: Optional[str] = None
     email: Optional[str] = None
     telefone: Optional[str] = None
-

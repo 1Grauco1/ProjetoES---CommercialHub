@@ -1,11 +1,11 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class PropietarioCreate(BaseModel):
+class ProprietarioCreate(BaseModel):
     documentos: str
 
 
-class PropietarioResponse(BaseModel):
+class ProprietarioResponse(BaseModel):
     id: int
     id_pessoa: int
     documentos: str

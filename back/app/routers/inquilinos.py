@@ -14,7 +14,7 @@ async def listar(db=Depends(get_db)):
 
 @router.get("/{id}", response_model=InquilinoResponse)
 async def buscar(id: int, db=Depends(get_db)):
-    inq = inquilino_crud.buscar_inquilino_id(db, id)
+    inq = inquilino_crud.buscar_id_inquilino(db, id)
     if not inq:
         raise HTTPException(status_code=404, detail="Inquilino não encontrado")
     return inq

@@ -25,5 +25,5 @@ def criar_access_token(data: dict):
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def verificar_acess_token(token: str):
-    return jwt.decode(payload, SECRET_KEY, algorithm=ALGORITHM)
+def verificar_access_token(token: str):
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

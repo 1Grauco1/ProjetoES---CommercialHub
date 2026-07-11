@@ -26,4 +26,3 @@ class Usuario(Base):
     nivel_acesso: Mapped[NivelAcesso] = mapped_column(SQLEnum(NivelAcesso))
 
     pessoa = relationship("Pessoa", back_populates="usuario")
-

@@ -1,5 +1,5 @@
 from app.dependencies.db_dependencie import get_db
-from app.schemas import auth_schemas, pessoa_schemas, usuario_schemas
+from app.schemas import auth_schemas, usuario_schemas
 from app.services import auth_service, pessoa_service
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
@@ -27,4 +27,3 @@ def criar_conta(dados_usuario: usuario_schemas.CadastroUsuario, db=Depends(get_d
 @router.post("/logoff")
 def logoff():
     return {"mensagem": "usuario deslogado."}
-

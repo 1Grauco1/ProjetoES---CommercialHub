@@ -10,7 +10,7 @@ def adicionar_sala(db: Session, dados_sala: sala_schemas.SalaCreate):
 
         if not sala:
             raise HTTPException(status_code=400, detail="Erro ao criar sala.")
-        return {"Sala": sala}
+        return sala
     except HTTPException:
         raise
     except Exception:
@@ -38,4 +38,3 @@ def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse, id_usuario:
     except Exception:
         db.rollback()
         raise
-

@@ -22,4 +22,3 @@ class Proprietario(Base):
     )
 
     salas: Mapped[list["Sala"]] = relationship("Sala", back_populates="proprietario")
-

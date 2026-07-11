@@ -19,7 +19,6 @@ class UsuarioResponse(BaseModel):
 class CadastroUsuario(BaseModel):
     nome: str
     email: str
-    id_pessoa: int
     telefone: str
     senha: str
     nivel_acesso: NivelAcesso
@@ -30,4 +29,3 @@ class VerUsuario(BaseModel):
     email: str
     telefone: str
     nivel_acesso: NivelAcesso
-

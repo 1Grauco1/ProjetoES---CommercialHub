@@ -6,10 +6,6 @@ from sqlalchemy.orm import Session
 
 def criar_usuario(db: Session, dados: usuario_schemas.CadastroUsuario, id_pessoa: int):
 
-    print("Senha:", dados.senha)
-    print("Tipo:", type(dados.senha))
-    print("Tamanho:", len(dados.senha))
-
     usuario = Usuario(
         id_pessoa=id_pessoa,
         usuario=dados.email,
@@ -29,6 +25,6 @@ def buscar_email(db: Session, email: str):
 
     return checagem_email
 
-def buscar_id_usuario(db: Session, id_usuario: int):
-    return db.query(Usuario)filter(Usuario.id_pessoa == id_usuario).first()
 
+def buscar_id_usuario(db: Session, id_usuario: int):
+    return db.query(Usuario).filter(Usuario.id_pessoa == id_usuario).first()

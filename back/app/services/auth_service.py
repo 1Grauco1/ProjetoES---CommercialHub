@@ -31,4 +31,3 @@ def realizar_login(db: Session, dados_login: auth_schemas.Login):
     except Exception:
         db.rollback()
         raise
-

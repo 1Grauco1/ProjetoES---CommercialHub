@@ -23,4 +23,3 @@ class Endereco(Base):
     cep: Mapped[str] = mapped_column(String(9))
 
     sala = relationship("Sala", back_populates="endereco", uselist=False)
-

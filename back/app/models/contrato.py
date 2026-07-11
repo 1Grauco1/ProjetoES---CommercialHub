@@ -38,4 +38,3 @@ class Contrato(Base):
     inquilino = relationship("Inquilino", back_populates="contratos")
 
     proprietario = relationship("Proprietario", back_populates="contratos")
-

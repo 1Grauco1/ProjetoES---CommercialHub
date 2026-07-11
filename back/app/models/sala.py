@@ -40,4 +40,3 @@ class Sala(Base):
     contratos: Mapped[list["Contrato"]] = relationship(
         "Contrato", back_populates="sala"
     )
-
