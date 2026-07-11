@@ -1,12 +1,12 @@
 from __future__ import annotations
-from sqlalchemy import Float, ForeignKey, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from enum import Enum
-from sqlalchemy import Enum as SQLEnum
 
 from app.models.base import Base
 from app.models.contrato import Contrato
-
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import Float, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class StatusSala(Enum):
@@ -21,13 +21,9 @@ class Sala(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    id_proprietario: Mapped[int] = mapped_column(
-        ForeignKey("proprietarios.id")
-    )
+    id_proprietario: Mapped[int] = mapped_column(ForeignKey("proprietarios.id"))
 
-    id_endereco: Mapped[int] = mapped_column(
-        ForeignKey("enderecos.id")
-    )
+    id_endereco: Mapped[int] = mapped_column(ForeignKey("enderecos.id"))
 
     tamanho: Mapped[float] = mapped_column(Float)
 
@@ -37,17 +33,11 @@ class Sala(Base):
 
     fotos: Mapped[str] = mapped_column(Text)
 
-    proprietario = relationship(
-        "Proprietario",
-        back_populates="salas"
-    )
+    proprietario = relationship("Proprietario", back_populates="salas")
 
-    endereco = relationship(
-        "Endereco",
-        back_populates="sala"
-    )
+    endereco = relationship("Endereco", back_populates="sala")
 
     contratos: Mapped[list["Contrato"]] = relationship(
-        "Contrato",
-        back_populates="sala"
+        "Contrato", back_populates="sala"
     )
+

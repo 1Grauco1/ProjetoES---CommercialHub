@@ -1,9 +1,9 @@
 from __future__ import annotations
-from sqlalchemy import ForeignKey, Text, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 from app.models.contrato import Contrato
+from sqlalchemy import ForeignKey, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Inquilino(Base):
@@ -11,19 +11,13 @@ class Inquilino(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    id_pessoa: Mapped[int] = mapped_column(
-        ForeignKey("pessoas.id"),
-        unique=True
-    )
+    id_pessoa: Mapped[int] = mapped_column(ForeignKey("pessoas.id"), unique=True)
 
     cadastro_profissional: Mapped[str] = mapped_column(Text)
 
-    pessoa = relationship(
-        "Pessoa",
-        back_populates="inquilino"
-    )
+    pessoa = relationship("Pessoa", back_populates="inquilino")
 
     contratos: Mapped[list["Contrato"]] = relationship(
-        "Contrato",
-        back_populates="inquilino"
+        "Contrato", back_populates="inquilino"
     )
+

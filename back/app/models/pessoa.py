@@ -1,7 +1,6 @@
-from sqlalchemy import String, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.models.base import Base
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Pessoa(Base):
@@ -11,28 +10,13 @@ class Pessoa(Base):
 
     nome: Mapped[str] = mapped_column(String(150), nullable=False)
 
-    email: Mapped[str] = mapped_column(
-        String(150),
-        unique=True,
-        nullable=False
-    )
+    email: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
 
     telefone: Mapped[str] = mapped_column(String(20))
 
-    usuario = relationship(
-        "Usuario",
-        back_populates="pessoa",
-        uselist=False
-    )
+    usuario = relationship("Usuario", back_populates="pessoa", uselist=False)
 
-    proprietario = relationship(
-        "Proprietario",
-        back_populates="pessoa",
-        uselist=False
-    )
+    proprietario = relationship("Proprietario", back_populates="pessoa", uselist=False)
 
-    inquilino = relationship(
-        "Inquilino",
-        back_populates="pessoa",
-        uselist=False
-    )
+    inquilino = relationship("Inquilino", back_populates="pessoa", uselist=False)
+

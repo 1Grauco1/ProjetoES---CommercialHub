@@ -1,12 +1,14 @@
 from datetime import date
 from typing import Optional
 
+from app.models.contrato import StatusContrato
 from pydantic import BaseModel, ConfigDict
-from app.models.contrato import StatusContrato 
+
 
 class ContratoCreate(BaseModel):
     id_sala: int
     id_inquilino: int
+    id_propietario: int
     data_inicio: date
     data_termino: date
     valor: float
@@ -30,7 +32,3 @@ class ContratoUpdate(BaseModel):
     data_termino: Optional[date] = None
     valor: Optional[float] = None
     status: Optional[StatusContrato] = None
-
-
-    
-    

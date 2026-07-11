@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
+
 class EnderecoCreate(BaseModel):
     id_pessoa: int
     rua: str
@@ -10,7 +11,8 @@ class EnderecoCreate(BaseModel):
     cidade: str
     estado: str
     cep: str
-    
+
+
 class EnderecoResponse(BaseModel):
     id: int
     id_pessoa: int
@@ -20,9 +22,10 @@ class EnderecoResponse(BaseModel):
     cidade: str
     estado: str
     cep: str
-    
+
     model_config = ConfigDict(from_attributes=True)
-    
+
+
 class EnderecoUpdate(BaseModel):
     rua: Optional[str] = None
     numero: Optional[str] = None
@@ -30,3 +33,4 @@ class EnderecoUpdate(BaseModel):
     cidade: Optional[str] = None
     estado: Optional[str] = None
     cep: Optional[str] = None
+
