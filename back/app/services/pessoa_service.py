@@ -21,6 +21,7 @@ def cadastrar_usuario(db: Session, dados_usuario: usuario_schemas.CadastroUsuari
         return {"usuario": usuario_criado, "pessoa": pessoa_criada}
 
     except HTTPException:
+        db.rollback()
         raise
     except Exception:
         db.rollback()

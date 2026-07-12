@@ -7,6 +7,7 @@ class PessoaCreate(BaseModel):
     nome: str
     email: str
     telefone: str
+    id_endereco : int | None
 
 
 class PessoaResponse(BaseModel):
@@ -14,6 +15,7 @@ class PessoaResponse(BaseModel):
     nome: str
     email: str
     telefone: str
+    id_endereco : str
 
     model_config = ConfigDict(from_attributes=True)
 

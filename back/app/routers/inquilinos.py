@@ -7,12 +7,12 @@ from fastapi import APIRouter, Depends, HTTPException
 router = APIRouter(prefix="/inquilinos", tags=["inquilinos"])
 
 
-@router.get("/", response_model=list[InquilinoResponse])
+@router.get("/listar/", response_model=list[InquilinoResponse])
 async def listar(db=Depends(get_db)):
     return inquilino_crud.listar_inquilinos(db)
 
 
-@router.get("/{id}", response_model=InquilinoResponse)
+@router.get("buscar/{id}", response_model=InquilinoResponse)
 async def buscar(id: int, db=Depends(get_db)):
     inq = inquilino_crud.buscar_id_inquilino(db, id)
     if not inq:
@@ -20,7 +20,7 @@ async def buscar(id: int, db=Depends(get_db)):
     return inq
 
 
-@router.post("/", response_model=InquilinoResponse)
+@router.post("criar/", response_model=InquilinoResponse)
 async def criar(
     dados: InquilinoCreate, db=Depends(get_db), user=Depends(get_current_user)
 ):

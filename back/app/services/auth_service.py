@@ -5,15 +5,15 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 
-def realizar_login(db: Session, dados_login: auth_schemas.Login):
+def realizar_login(db: Session, email: str, senha : str):
     try:
 
-        usuario_buscado = usuario_crud.buscar_email(db, dados_login.email)
+        usuario_buscado = usuario_crud.buscar_email(db, email)
 
         if not usuario_buscado:
             raise HTTPException(status_code=401, detail="Usuario não cadastrado!")
 
-        if not verificar_senha(dados_login.senha, usuario_buscado.senha):
+        if not verificar_senha(senha, usuario_buscado.senha):
             raise HTTPException(status_code=401, detail="Senha incorreta!")
 
         token = criar_access_token(
@@ -23,10 +23,13 @@ def realizar_login(db: Session, dados_login: auth_schemas.Login):
                 "nivel": usuario_buscado.nivel_acesso.value,
             }
         )
+        
+        db.commit()
 
         return {"access_token": token, "token_type": "bearer"}
 
     except HTTPException:
+        db.rollback()
         raise
     except Exception:
         db.rollback()

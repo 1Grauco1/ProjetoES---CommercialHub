@@ -17,7 +17,7 @@ async def listar(db=Depends(get_db)):
     return contrato_crud.listar_contratos(db)
 
 
-@router.get("/{id}", response_model=ContratoResponse)
+@router.get("/buscar_contrato/{id}", response_model=ContratoResponse)
 async def buscar(id: int, db=Depends(get_db)):
     contrato = contrato_crud.buscar_contrato(db, id)
     if not contrato:
@@ -25,20 +25,20 @@ async def buscar(id: int, db=Depends(get_db)):
     return contrato
 
 
-@router.post("/", response_model=ContratoResponse)
+@router.post("/adicionar_contrato/", response_model=ContratoResponse)
 async def criar(
     dados: ContratoCreate, db=Depends(get_db), user=Depends(get_current_user)
 ):
     return contrato_service.criar_contrato(db, dados)
 
 
-@router.patch("/{id}", response_model=ContratoResponse)
+@router.patch("/editar_contrato/{id}", response_model=ContratoResponse)
 async def editar(
     id: int, dados: ContratoUpdate, db=Depends(get_db), user=Depends(get_current_user)
 ):
     return contrato_service.editar_contrato(db, id, dados)
 
 
-@router.delete("/{id}")
+@router.delete("/remove/{id}")
 async def remover(id: int, db=Depends(get_db), user=Depends(get_current_user)):
     return contrato_service.remover_contrato(db, id)

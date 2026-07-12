@@ -11,7 +11,7 @@ class SalaCreate(BaseModel):
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
-    fotos: str
+    fotos: str | None
 
 
 class SalaResponse(BaseModel):
@@ -22,7 +22,7 @@ class SalaResponse(BaseModel):
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
-    fotos: str
+    fotos: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -8,8 +8,6 @@ class Endereco(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    id_pessoa: Mapped[int] = mapped_column(Integer)
-
     rua: Mapped[str] = mapped_column(String(150))
 
     numero: Mapped[str] = mapped_column(String(20))
@@ -23,3 +21,5 @@ class Endereco(Base):
     cep: Mapped[str] = mapped_column(String(9))
 
     sala = relationship("Sala", back_populates="endereco", uselist=False)
+    
+    pessoa = relationship("Pessoa", back_populates="endereco", uselist=False)

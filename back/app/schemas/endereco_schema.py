@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict
 
 
 class EnderecoCreate(BaseModel):
-    id_pessoa: int
     rua: str
     numero: str
     bairro: str
@@ -15,7 +14,6 @@ class EnderecoCreate(BaseModel):
 
 class EnderecoResponse(BaseModel):
     id: int
-    id_pessoa: int
     rua: str
     numero: str
     bairro: str

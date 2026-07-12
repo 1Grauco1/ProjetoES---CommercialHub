@@ -4,36 +4,23 @@ from sqlalchemy.orm import Session
 
 
 def criar_endereco(
-    db: Session,
-    id_pessoa: int,
-    rua: str,
-    numero: str,
-    bairro: str,
-    cidade: str,
-    estado: str,
-    cep: str,
+    db: Session, dados_endereco : endereco_schema.EnderecoCreate
+   
 ):
 
     endereco = Endereco(
-        id_pessoa=id_pessoa,
-        rua=rua,
-        numero=numero,
-        bairro=bairro,
-        cidade=cidade,
-        estado=estado,
-        cep=cep,
+        rua=dados_endereco.rua,
+        numero=dados_endereco.numero,
+        bairro=dados_endereco.bairro,
+        cidade=dados_endereco.cidade,
+        estado=dados_endereco.estado,
+        cep=dados_endereco.cep,
     )
 
     db.add(endereco)
     db.flush()
 
     return endereco
-
-
-def listar_endereco_usuario(db: Session, id_pessoa: int):
-
-    return db.query(Endereco).filter_by(id_pessoa=id_pessoa).all()
-
 
 def buscar_endereco(db: Session, id_endereco: int):
     return db.query(Endereco).filter_by(id=id_endereco).first()
@@ -53,7 +40,7 @@ def editar_endereco(
     for campo, valor in dados.items():
         setattr(endereco, campo, valor)
 
-    db.commit()
+    
     db.refresh(endereco)
 
     return endereco
@@ -65,7 +52,7 @@ def remover_endereco(db: Session, id_endereco: int):
 
     if endereco:
         db.delete(endereco)
-        db.commit()
+        
 
         return {"message": "Endereço removido."}
 

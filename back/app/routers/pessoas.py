@@ -6,12 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException
 router = APIRouter(prefix="/usuario", tags=["usuario"])
 
 
-@router.get("/", response_model=list[PessoaResponse])
+@router.get("/listar", response_model=list[PessoaResponse])
 async def listar_usuarios(db=Depends(get_db)):
     return pessoa_crud.listar_pessoa(db)
 
 
-@router.get("/{id_pessoa}", response_model=PessoaResponse)
+@router.get("/buscar/{id_pessoa}", response_model=PessoaResponse)
 async def buscar_usuario(id_pessoa: int, db=Depends(get_db)):
     pessoa = pessoa_crud.buscar_pessoa(db, id_pessoa)
     if not pessoa:
@@ -19,7 +19,7 @@ async def buscar_usuario(id_pessoa: int, db=Depends(get_db)):
     return pessoa
 
 
-@router.put("/{id_pessoa}", response_model=PessoaResponse)
+@router.patch("/editar/{id_pessoa}", response_model=PessoaResponse)
 async def editar_usuario(id_pessoa: int, dados: PessoaUpdate, db=Depends(get_db)):
     pessoa = pessoa_crud.editar_pessoa(db, dados, id_pessoa)
     if not pessoa:

@@ -18,7 +18,7 @@ def get_current_user(
     )
     try:
         payload = verificar_access_token(token)
-        id_usuario: int = payload.get("id")
+        id_usuario  = payload.get("id")
         if id_usuario is None:
             raise credenciais_exceptions
 

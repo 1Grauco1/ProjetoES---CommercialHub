@@ -19,25 +19,45 @@ def criar_contrato(db: Session, dados: contrato_schemas.ContratoCreate):
             dados.id_sala,
             sala_schemas.SalaUpdatePatch(status_ocupacao=StatusSala.ALUGADA),
         )
+        db.commit()
+        db.refresh(contrato)
         return contrato
     except HTTPException:
+        db.rollback()
         raise
     except Exception:
         db.rollback()
         raise
 
 
-def editar_contrato(
-    db: Session, id_contrato: int, dados: contrato_schemas.ContratoUpdate
-):
-    contrato = contrato_crud.editar_contrato(db, id_contrato, dados)
-    if not contrato:
-        raise HTTPException(status_code=404, detail="Contrato não encontrado")
-    return contrato
+def editar_contrato(db: Session, id_contrato: int, dados: contrato_schemas.ContratoUpdate):
+    try:
+        contrato = contrato_crud.editar_contrato(db, id_contrato, dados)
+        if not contrato:
+            raise HTTPException(status_code=404, detail="Contrato não encontrado")
+        
+        db.commit()
+        db.refresh(contrato)
+        return contrato
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
 
 
 def remover_contrato(db: Session, id_contrato: int):
-    contrato = contrato_crud.remover_contrato(db, id_contrato)
-    if not contrato:
-        raise HTTPException(status_code=404, detail="Contrato não encontrado")
-    return contrato
+    try:
+        contrato = contrato_crud.remover_contrato(db, id_contrato)
+        if not contrato:
+            raise HTTPException(status_code=404, detail="Contrato não encontrado")
+        db.commit()
+        db.refresh(contrato)
+        return contrato
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise

@@ -4,7 +4,16 @@ from sqlalchemy.orm import Session
 
 
 def registrar_proprietario(db: Session, id_pessoa: int, documentos: str):
-    existente = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
-    if existente:
-        raise HTTPException(status_code=409, detail="Usuário já é proprietário")
-    return proprietario_crud.criar_proprietario(db, id_pessoa, documentos)
+    try:
+        existente = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
+        if existente:
+            raise HTTPException(status_code=409, detail="Usuário já é proprietário")
+        proprietario = proprietario_crud.criar_proprietario(db, id_pessoa, documentos)
+        db.commit()
+        db.refresh(proprietario)
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise

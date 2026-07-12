@@ -31,7 +31,7 @@ class Sala(Base):
 
     status_ocupacao: Mapped[StatusSala] = mapped_column(SQLEnum(StatusSala))
 
-    fotos: Mapped[str] = mapped_column(Text)
+    fotos: Mapped[str] = mapped_column(Text, nullable= True)
 
     proprietario = relationship("Proprietario", back_populates="salas")
 

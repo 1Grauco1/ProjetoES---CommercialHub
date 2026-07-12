@@ -48,7 +48,7 @@ def editar_contrato(
     for campo, valor in dados.items():
         setattr(contrato, campo, valor)
 
-    db.commit()
+    
     db.refresh(contrato)
 
     return contrato
@@ -61,7 +61,7 @@ def remover_contrato(db: Session, id_contrato: int):
     if contrato:
 
         db.delete(contrato)
-        db.commit()
+        
         return contrato
 
     return None
