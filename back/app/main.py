@@ -9,9 +9,7 @@ from app.routers import auth, contratos, inquilinos, pessoas, proprietarios, sal
 
 app = FastAPI(title="CommercialHub", version="1.0")
 
-# =========================================================================
-# 2. CONFIGURAÇÃO DO CORS (Liberando o Front-end Next.js)
-# =========================================================================
+
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
