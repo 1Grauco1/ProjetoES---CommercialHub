@@ -33,9 +33,15 @@ def listar_salas_tamanho_maior(db: Session, tamanho: float):
     return db.query(Sala).filter(Sala.tamanho > tamanho).all()
 
 
-def listar_salas_tamanho_menor(db: Session, tamanho: float):
-    return db.query(Sala).filter(Sala.tamanho < tamanho).all()
 
+def listar_salas_tamanho(db: Session):
+    return db.query(Sala).order_by(Sala.tamanho.desc()).all()
+
+def listar_salas_preco(db : Session):
+    return db.query(Sala).order_by(Sala.preco.desc()).all()
+
+def listar_salas_preco_limite(db: Session , preco_limite: float):
+    return db.query(Sala).filter(Sala.preco <= preco_limite).all()
 
 def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch):
 
