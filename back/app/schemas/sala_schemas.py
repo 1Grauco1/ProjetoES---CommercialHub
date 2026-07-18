@@ -34,3 +34,16 @@ class SalaUpdatePatch(BaseModel):
     preco: Optional[float] = None
     status_ocupacao: Optional[StatusSala] = None
     fotos: Optional[str] = None
+    
+class SalaFilterSearch(BaseModel):
+
+    cidade : Optional[str] = None
+    estado: Optional[str] = None
+    CEP : Optional[str] = None
+    tamanho_min: Optional[float] = None
+    tamanho_max: Optional[float] = None
+    preco_min: Optional[float] = None
+    preco_max: Optional[float] = None
+    
+    
+  

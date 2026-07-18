@@ -80,15 +80,13 @@ def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse, id_usuario:
         db.rollback()
         raise
 
-def buscar_sala(db:Session, id_sala: int):
+def buscar_sala(db:Session, dados_sala : sala_schemas.SalaFilterSearch):
     try:
-        sala = sala_crud.buscar_sala_id(db, id_sala)
+        salas = sala_crud.buscar_salas_filtros(db, dados_sala)
         
-        if not sala:
+        if not salas:
             raise HTTPException(status_code=400, detail="Sala não encontrada.")
-        db.commit()
-        db.refresh(sala)
-        return sala
+        return salas
     except HTTPException:
         db.rollback()
         raise

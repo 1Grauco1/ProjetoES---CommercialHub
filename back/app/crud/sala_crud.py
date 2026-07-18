@@ -1,6 +1,7 @@
-from app.models import Sala
+from app.models import Sala, Endereco
 from app.schemas import sala_schemas
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 
 def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate):
@@ -31,6 +32,39 @@ def listar_salas_proprietario(db: Session, id_proprietario: int):
 
 def listar_salas_tamanho_maior(db: Session, tamanho: float):
     return db.query(Sala).filter(Sala.tamanho > tamanho).all()
+
+def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
+    conditions = []
+
+    if filtros.cidade:
+        conditions.append(Endereco.cidade.ilike(f"%{filtros.cidade}%"))
+
+    if filtros.estado:
+        conditions.append(Endereco.estado == filtros.estado)
+
+    if filtros.CEP:
+        conditions.append(Endereco.cep == filtros.CEP)
+
+    if filtros.tamanho_min is not None:
+        conditions.append(Sala.tamanho >= filtros.tamanho_min)
+
+    if filtros.tamanho_max is not None:
+        conditions.append(Sala.tamanho <= filtros.tamanho_max)
+
+    if filtros.preco_min is not None:
+        conditions.append(Sala.preco >= filtros.preco_min)
+
+    if filtros.preco_max is not None:
+        conditions.append(Sala.preco <= filtros.preco_max)
+
+    query = (
+        select(Sala)
+        .join(Endereco)
+        .where(*conditions)
+    )
+
+    return db.execute(query).scalars().all()
+    
 
 
 
@@ -87,4 +121,4 @@ def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse):
 
 
 def listar_salas(db: Session):
-    return db.query(Sala).all()
+    return db.query(Sala).order_by(Sala.status_ocupacao).all()
