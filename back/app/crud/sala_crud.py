@@ -33,6 +33,12 @@ def listar_salas_proprietario(db: Session, id_proprietario: int):
 def listar_salas_tamanho_maior(db: Session, tamanho: float):
     return db.query(Sala).filter(Sala.tamanho > tamanho).all()
 
+def listar_salas_por_tamanho(db:Session):
+    return db.query(Sala).order_by(Sala.tamanho).all()
+
+def listar_salas_por_preco(db : Session):
+    return db.query(Sala).order_by(Sala.preco).all()
+
 def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
     conditions = []
 
@@ -65,9 +71,6 @@ def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
 
     return db.execute(query).scalars().all()
     
-
-
-
 def listar_salas_tamanho(db: Session):
     return db.query(Sala).order_by(Sala.tamanho.desc()).all()
 
@@ -107,8 +110,6 @@ def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
     return sala
 
     
-
-
 def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse):
 
     sala = buscar_sala_id(db, dados_sala.id)
