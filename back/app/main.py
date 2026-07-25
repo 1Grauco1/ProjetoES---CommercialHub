@@ -1,11 +1,10 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
-# 1. Importa o middleware de CORS
-from fastapi.middleware.cors import CORSMiddleware 
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
-from app.routers import auth, contratos, inquilinos, pessoas, proprietarios, salas
+from app.routers import auth, contratos, inquilinos, pessoas, proprietarios, salas,cep
 
 app = FastAPI(title="CommercialHub", version="1.0")
 
@@ -30,5 +29,6 @@ app.include_router(salas.router)
 app.include_router(contratos.router)
 app.include_router(proprietarios.router)
 app.include_router(inquilinos.router)
+app.include_router(cep.router)
 
 # uvicorn app.main:app --reload

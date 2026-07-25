@@ -33,3 +33,4 @@ starlette
 typing_extensions    
 typing-inspection    
 uvicorn              
+httpx

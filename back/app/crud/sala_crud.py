@@ -62,6 +62,9 @@ def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
 
     if filtros.preco_max is not None:
         conditions.append(Sala.preco <= filtros.preco_max)
+    
+    if filtros.tipo is not None:
+        conditions.append(Sala.tipo == filtros.tipo)
 
     query = (
         select(Sala)

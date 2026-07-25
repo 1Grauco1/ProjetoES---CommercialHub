@@ -15,6 +15,11 @@ class StatusSala(Enum):
     ALUGADA = "Alugada"
     MANUTENCAO = "Manutenção"
 
+class TipoSala(Enum):
+    COMERCIAL = "Comercial"
+    RESIDENCIAL = "Residencial"
+    
+    
 
 class Sala(Base):
     __tablename__ = "salas"
@@ -32,7 +37,11 @@ class Sala(Base):
     status_ocupacao: Mapped[StatusSala] = mapped_column(SQLEnum(StatusSala))
 
     fotos: Mapped[str] = mapped_column(Text, nullable= True)
-
+    
+    descricao: Mapped[str] = mapped_column(Text, nullable=False)
+    
+    tipo : Mapped[TipoSala] = mapped_column(SQLEnum(TipoSala), nullable= False)
+    
     proprietario = relationship("Proprietario", back_populates="salas")
 
     endereco = relationship("Endereco", back_populates="sala")

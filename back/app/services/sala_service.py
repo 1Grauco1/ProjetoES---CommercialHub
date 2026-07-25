@@ -80,7 +80,7 @@ def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse, id_usuario:
         db.rollback()
         raise
 
-def buscar_sala(db:Session, dados_sala : sala_schemas.SalaFilterSearch):
+def buscar_salas(db:Session, dados_sala : sala_schemas.SalaFilterSearch):
     try:
         salas = sala_crud.buscar_salas_filtros(db, dados_sala)
         
@@ -93,4 +93,3 @@ def buscar_sala(db:Session, dados_sala : sala_schemas.SalaFilterSearch):
     except Exception:
         db.rollback()
         raise
-    
