@@ -29,11 +29,14 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         try {
-            await authApi.login({
+            const response = await authApi.login({
                 username: values.email,
                 password: values.password,
             });
-            router.push('/');
+            const token = response.access_token ?? response.token;
+            if (!token) throw new Error('A API não retornou um token de acesso.');
+            localStorage.setItem('token', token);
+            router.push('/dashboard');
         } catch {
             setSubmitError('Não foi possível entrar. Verifique as credenciais e tente novamente.');
         } finally {
