@@ -38,16 +38,20 @@ class Sala(Base):
 
     status_ocupacao: Mapped[StatusSala] = mapped_column(SQLEnum(StatusSala))
 
-    fotos: Mapped[str] = mapped_column(Text, nullable= True)
-    
     descricao: Mapped[str] = mapped_column(Text, nullable=False)
     
     tipo : Mapped[TipoSala] = mapped_column(SQLEnum(TipoSala), nullable= False)
     
     proprietario = relationship("Proprietario", back_populates="salas")
 
-    endereco = relationship("Endereco", back_populates="sala")
+    endereco = relationship("Endereco", back_populates="salas")
+    
 
     contratos: Mapped[list["Contrato"]] = relationship(
         "Contrato", back_populates="sala"
     )
+    fotos = relationship(
+    "Foto",
+    back_populates="sala",
+    cascade="all, delete-orphan"
+)
