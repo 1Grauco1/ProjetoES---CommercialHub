@@ -24,4 +24,6 @@ async def editar_usuario(id_pessoa: int, dados: PessoaUpdate, db=Depends(get_db)
     pessoa = pessoa_crud.editar_pessoa(db, dados, id_pessoa)
     if not pessoa:
         raise HTTPException(status_code=404, detail="Pessoa não encontrada")
+    db.commit()
+    db.refresh(pessoa)
     return pessoa

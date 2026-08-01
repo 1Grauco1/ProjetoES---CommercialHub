@@ -40,9 +40,6 @@ def editar_endereco(
     for campo, valor in dados.items():
         setattr(endereco, campo, valor)
 
-    
-    db.refresh(endereco)
-
     return endereco
 
 

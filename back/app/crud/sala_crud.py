@@ -95,9 +95,6 @@ def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdate
     for campo, valor in dados.items():
         setattr(sala, campo, valor)
 
-    
-    db.refresh(sala)
-
     return sala
 
 def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
@@ -106,10 +103,7 @@ def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
     if not sala:
         return None
     sala.fotos = caminho_foto
-    
-    
-    db.refresh(sala)
-    
+
     return sala
 
     

@@ -36,7 +36,4 @@ def editar_pessoa(
     for campo, valor in dados.items():
         setattr(pessoa, campo, valor)
 
-    
-    db.refresh(pessoa)
-
     return pessoa

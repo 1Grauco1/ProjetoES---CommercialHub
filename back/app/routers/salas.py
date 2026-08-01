@@ -21,6 +21,8 @@ async def editar(
     sala = sala_crud.editar_sala(db, id, dados)
     if not sala:
         raise HTTPException(status_code=404, detail="Sala não encontrada")
+    db.commit()
+    db.refresh(sala)
     return sala
 
 @router.post("/adicionar_foto/{id}", response_model=SalaResponse)
