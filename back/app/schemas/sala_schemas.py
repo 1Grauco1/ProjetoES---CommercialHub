@@ -1,55 +1,64 @@
 from typing import Optional
 
 from app.models.sala import StatusSala, TipoSala
+from app.schemas.endereco_schema import EnderecoUpdate
 from pydantic import BaseModel, ConfigDict
 
 
 class SalaCreate(BaseModel):
 
-    id_proprietario: int
-    id_endereco: int
+    id_proprietario: Optional[int] = None
+    id_endereco: Optional[int] = None
+    titulo: str
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
     fotos: str | None
-    descricao : float
-    tipo : TipoSala
+    descricao: str
+    tipo: TipoSala
+
 
 class SalaResponse(BaseModel):
 
     id: int
     id_proprietario: int
     id_endereco: int
+    titulo: str
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
     fotos: Optional[str] = None
-    descricao : float
-    tipo : TipoSala
+    descricao: str
+    tipo: TipoSala
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class SalaUpdatePatch(BaseModel):
 
+    titulo: Optional[str] = None
     id_endereco: Optional[int] = None
     tamanho: Optional[float] = None
     preco: Optional[float] = None
     status_ocupacao: Optional[StatusSala] = None
     fotos: Optional[str] = None
-    descricao : Optional[str] = None
-    tipo : Optional[TipoSala] = None
-    
+    descricao: Optional[str] = None
+    tipo: Optional[TipoSala] = None
+
+
+class SalaUpdatePayload(BaseModel):
+
+    dados_sala: Optional[SalaUpdatePatch] = None
+    dados_endereco: Optional[EnderecoUpdate] = None
+
+
 class SalaFilterSearch(BaseModel):
 
-    cidade : Optional[str] = None
+    cidade: Optional[str] = None
     estado: Optional[str] = None
-    CEP : Optional[str] = None
+    CEP: Optional[str] = None
     tamanho_min: Optional[float] = None
     tamanho_max: Optional[float] = None
     preco_min: Optional[float] = None
     preco_max: Optional[float] = None
-    tipo : Optional[TipoSala] = None
-    
-    
-  
+    tipo: Optional[TipoSala] = None

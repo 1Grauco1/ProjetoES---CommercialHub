@@ -1,7 +1,7 @@
-from app.models import Sala, Endereco
+from app.models import Endereco, Sala
 from app.schemas import sala_schemas
-from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 
 def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate):
@@ -33,11 +33,14 @@ def listar_salas_proprietario(db: Session, id_proprietario: int):
 def listar_salas_tamanho_maior(db: Session, tamanho: float):
     return db.query(Sala).filter(Sala.tamanho > tamanho).all()
 
-def listar_salas_por_tamanho(db:Session):
+
+def listar_salas_por_tamanho(db: Session):
     return db.query(Sala).order_by(Sala.tamanho).all()
 
-def listar_salas_por_preco(db : Session):
+
+def listar_salas_por_preco(db: Session):
     return db.query(Sala).order_by(Sala.preco).all()
+
 
 def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
     conditions = []
@@ -62,26 +65,26 @@ def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
 
     if filtros.preco_max is not None:
         conditions.append(Sala.preco <= filtros.preco_max)
-    
+
     if filtros.tipo is not None:
         conditions.append(Sala.tipo == filtros.tipo)
 
-    query = (
-        select(Sala)
-        .join(Endereco)
-        .where(*conditions)
-    )
+    query = select(Sala).join(Endereco).where(*conditions)
 
     return db.execute(query).scalars().all()
-    
+
+
 def listar_salas_tamanho(db: Session):
     return db.query(Sala).order_by(Sala.tamanho.desc()).all()
 
-def listar_salas_preco(db : Session):
+
+def listar_salas_preco(db: Session):
     return db.query(Sala).order_by(Sala.preco.desc()).all()
 
-def listar_salas_preco_limite(db: Session , preco_limite: float):
+
+def listar_salas_preco_limite(db: Session, preco_limite: float):
     return db.query(Sala).filter(Sala.preco <= preco_limite).all()
+
 
 def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch):
 
@@ -97,8 +100,9 @@ def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdate
 
     return sala
 
-def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
-    
+
+def atualizar_foto(db: Session, id_sala: int, caminho_foto: str):
+
     sala = buscar_sala_id(db, id_sala)
     if not sala:
         return None
@@ -106,15 +110,12 @@ def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
 
     return sala
 
-    
-def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse):
 
-    sala = buscar_sala_id(db, dados_sala.id)
+def remover_sala(db: Session, id_sala: int):
+    sala = buscar_sala_id(db, id_sala)
     if sala:
         db.delete(sala)
-        db.commit()
         return sala
-
     return None
 
 

@@ -11,6 +11,7 @@ def registrar_proprietario(db: Session, id_pessoa: int, documentos: str):
         proprietario = proprietario_crud.criar_proprietario(db, id_pessoa, documentos)
         db.commit()
         db.refresh(proprietario)
+        return proprietario
     except HTTPException:
         db.rollback()
         raise

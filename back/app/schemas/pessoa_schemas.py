@@ -15,7 +15,7 @@ class PessoaResponse(BaseModel):
     nome: str
     email: str
     telefone: str
-    id_endereco : str
+    id_endereco: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -1,4 +1,10 @@
-from app.crud import pessoa_crud, usuario_crud
+from app.crud import (
+    inquilino_crud,
+    pessoa_crud,
+    proprietario_crud,
+    usuario_crud,
+)
+from app.models.usuario import NivelAcesso
 from app.schemas import pessoa_schemas, usuario_schemas
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -7,12 +13,22 @@ from sqlalchemy.orm import Session
 def cadastrar_usuario(db: Session, dados_usuario: usuario_schemas.CadastroUsuario):
     try:
 
+        if dados_usuario.nivel_acesso == NivelAcesso.ADMIN:
+            raise HTTPException(
+                status_code=400, detail="Não é possível criar conta de Administrador."
+            )
+
         if usuario_crud.buscar_email(db, dados_usuario.email):
             raise HTTPException(status_code=409, detail="E-mail já cadastrado.")
 
         pessoa_criada = pessoa_crud.criar_pessoa(db, dados_usuario)
 
         usuario_criado = usuario_crud.criar_usuario(db, dados_usuario, pessoa_criada.id)
+
+        if dados_usuario.nivel_acesso == NivelAcesso.PROPRIETARIO:
+            proprietario_crud.criar_proprietario(db, pessoa_criada.id, "")
+        elif dados_usuario.nivel_acesso == NivelAcesso.INQUILINO:
+            inquilino_crud.criar_inquilino(db, pessoa_criada.id, "")
 
         db.commit()
         db.refresh(pessoa_criada)

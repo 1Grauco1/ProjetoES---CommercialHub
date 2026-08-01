@@ -30,6 +30,8 @@ class Sala(Base):
 
     id_endereco: Mapped[int] = mapped_column(ForeignKey("enderecos.id"))
 
+    titulo: Mapped[str] = mapped_column(String(150), nullable=False)
+
     tamanho: Mapped[float] = mapped_column(Float)
 
     preco: Mapped[float] = mapped_column(Float)
