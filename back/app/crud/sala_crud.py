@@ -23,9 +23,26 @@ def listar_salas_usuario(db: Session, id_usuario: int) -> list[Sala]:
     )
 
 
-def buscar_salas_filtros(
-    db: Session, filtros: sala_schemas.SalaFilterSearch
-) -> list[Sala]:
+def listar_salas_proprietario(db: Session, id_proprietario: int):
+
+    salas = db.query(Sala).filter(Sala.id_proprietario == id_proprietario).all()
+
+    return salas
+
+
+def listar_salas_tamanho_maior(db: Session, tamanho: float):
+    return db.query(Sala).filter(Sala.tamanho > tamanho).all()
+
+
+def listar_salas_por_tamanho(db: Session):
+    return db.query(Sala).order_by(Sala.tamanho).all()
+
+
+def listar_salas_por_preco(db: Session):
+    return db.query(Sala).order_by(Sala.preco).all()
+
+
+def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
     conditions = []
 
     if filtros.termo:
@@ -88,7 +105,7 @@ def buscar_salas_filtros(
 
     query = select(Sala).join(Endereco).where(*conditions)
 
-    return list(db.scalars(query))
+    return db.execute(query).scalars().all()
 
 
 def listar_salas_tamanho(db: Session):
@@ -119,3 +136,25 @@ def editar_sala(
         setattr(sala, campo, valor)
 
     return sala
+
+
+def atualizar_foto(db: Session, id_sala: int, caminho_foto: str):
+
+    sala = buscar_sala_id(db, id_sala)
+    if not sala:
+        return None
+    sala.fotos = caminho_foto
+
+    return sala
+
+
+def remover_sala(db: Session, id_sala: int):
+    sala = buscar_sala_id(db, id_sala)
+    if sala:
+        db.delete(sala)
+        return sala
+    return None
+
+
+def listar_salas(db: Session):
+    return db.query(Sala).order_by(Sala.status_ocupacao).all()
