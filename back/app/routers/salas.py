@@ -1,3 +1,5 @@
+from typing import List
+
 from app.crud import endereco_crud, proprietario_crud, sala_crud
 from app.dependencies.auth_dependencie import get_current_user
 from app.dependencies.db_dependencie import get_db
@@ -59,7 +61,8 @@ async def editar_por_id(
     if payload.dados_sala:
         sala = sala_crud.editar_sala(db, id, payload.dados_sala)
     if payload.dados_endereco:
-        endereco_crud.editar_endereco(db, sala.id_endereco, payload.dados_endereco)
+        if sala:
+            endereco_crud.editar_endereco(db, sala.id_endereco, payload.dados_endereco)
     db.commit()
     db.refresh(sala)
     return sala
@@ -70,14 +73,14 @@ async def remover_por_id(id: int, db=Depends(get_db), user=Depends(get_current_u
     return sala_service.remover_sala(db, id, user.id_pessoa)
 
 
-@router.post("/{id}/foto", response_model=SalaResponse)
+@router.post("/{id}/fotos", response_model=SalaResponse)
 async def adicionar_foto_por_id(
     id: int,
-    foto: UploadFile = File(...),
+    fotos: List[UploadFile] = File(...),
     db=Depends(get_db),
     user=Depends(get_current_user),
 ):
-    return await sala_service.adicionar_foto(db, id, foto, user.id_pessoa)
+    return await sala_service.adicionar_foto(db, id, fotos, user.id_pessoa)
 
 
 @router.post("/buscar_salas/filtrar/")
