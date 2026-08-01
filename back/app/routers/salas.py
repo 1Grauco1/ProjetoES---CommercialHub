@@ -37,6 +37,8 @@ async def buscar_por_id(id: int, db=Depends(get_db)):
     sala = sala_crud.buscar_sala_id(db, id)
     if not sala:
         raise HTTPException(status_code=404, detail="Sala não encontrada")
+    db.commit()
+    db.refresh(sala)
     return sala
 
 
