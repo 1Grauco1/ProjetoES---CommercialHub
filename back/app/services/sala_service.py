@@ -1,6 +1,10 @@
-from app.crud import endereco_crud, foto_crud, sala_crud
+
 from app.models.sala import Sala
-from app.schemas import endereco_schemas, sala_schemas
+import os
+import uuid
+
+from app.crud import endereco_crud, proprietario_crud, sala_crud, foto_crud
+from app.schemas import endereco_schema, sala_schemas
 from app.services.arquivo_service import salvar_imagem
 from fastapi import File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
@@ -83,7 +87,7 @@ async def adicionar_foto(
             )
         caminho = await salvar_imagem(foto)
 
-        sala_crud.atualizar_foto(db, id_sala, caminho)
+        foto_crud.adicionarFoto(db, id_sala, caminho)
 
         db.commit()
         db.refresh(sala)

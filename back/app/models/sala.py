@@ -56,7 +56,7 @@ class Sala(Base):
 
     usuario = relationship("Usuario", back_populates="salas")
 
-    endereco = relationship("Endereco", back_populates="sala")
+    endereco = relationship("Endereco", back_populates="salas")
     
 
     contratos: Mapped[list["Contrato"]] = relationship(
