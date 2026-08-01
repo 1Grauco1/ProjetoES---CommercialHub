@@ -1,5 +1,9 @@
-from app.crud import inquilino_crud, pessoa_crud, proprietario_crud, usuario_crud
-from app.models.pessoa import Pessoa
+from app.crud import (
+    inquilino_crud,
+    pessoa_crud,
+    proprietario_crud,
+    usuario_crud,
+)
 from app.models.usuario import NivelAcesso
 from app.schemas import pessoa_schemas, usuario_schemas
 from fastapi import HTTPException
@@ -10,6 +14,11 @@ def cadastrar_usuario(
     db: Session, dados_usuario: usuario_schemas.CadastroUsuario
 ) -> dict:
     try:
+        if dados_usuario.nivel_acesso == NivelAcesso.ADMIN:
+            raise HTTPException(
+                status_code=400, detail="Não é possível criar conta de Administrador."
+            )
+
         if dados_usuario.nivel_acesso == NivelAcesso.ADMIN:
             raise HTTPException(
                 status_code=400, detail="Não é possível criar conta de Administrador."

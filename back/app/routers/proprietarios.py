@@ -2,7 +2,7 @@ from app.crud import proprietario_crud
 from app.dependencies.auth_dependency import get_current_user
 from app.dependencies.db_dependency import get_db
 from app.schemas.proprietario_schemas import ProprietarioCreate, ProprietarioResponse
-from app.services import proprietario_service
+from app.services import propietario_service
 from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter(prefix="/proprietarios", tags=["proprietarios"])
@@ -25,6 +25,6 @@ async def buscar(id: int, db=Depends(get_db), user=Depends(get_current_user)):
 async def criar(
     dados: ProprietarioCreate, db=Depends(get_db), user=Depends(get_current_user)
 ):
-    return proprietario_service.registrar_proprietario(
+    return propietario_service.registrar_proprietario(
         db, user.id_pessoa, dados.documentos
     )

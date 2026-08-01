@@ -23,9 +23,26 @@ def listar_salas_proprietario(db: Session, id_proprietario: int) -> list[Sala]:
     )
 
 
-def buscar_salas_filtros(
-    db: Session, filtros: sala_schemas.SalaFilterSearch
-) -> list[Sala]:
+def listar_salas_proprietario(db: Session, id_proprietario: int):
+
+    salas = db.query(Sala).filter(Sala.id_proprietario == id_proprietario).all()
+
+    return salas
+
+
+def listar_salas_tamanho_maior(db: Session, tamanho: float):
+    return db.query(Sala).filter(Sala.tamanho > tamanho).all()
+
+
+def listar_salas_por_tamanho(db: Session):
+    return db.query(Sala).order_by(Sala.tamanho).all()
+
+
+def listar_salas_por_preco(db: Session):
+    return db.query(Sala).order_by(Sala.preco).all()
+
+
+def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
     conditions = []
 
     if filtros.termo:
@@ -88,8 +105,22 @@ def buscar_salas_filtros(
 
     query = select(Sala).join(Endereco).where(*conditions)
 
-    return list(db.scalars(query))
+    return db.execute(query).scalars().all()
 
+
+def listar_salas_tamanho(db: Session):
+    return db.query(Sala).order_by(Sala.tamanho.desc()).all()
+
+
+def listar_salas_preco(db: Session):
+    return db.query(Sala).order_by(Sala.preco.desc()).all()
+
+
+def listar_salas_preco_limite(db: Session, preco_limite: float):
+    return db.query(Sala).filter(Sala.preco <= preco_limite).all()
+
+
+def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch):
 
 def editar_sala(
     db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch
@@ -106,8 +137,9 @@ def editar_sala(
 
     return sala
 
-def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
-    
+
+def atualizar_foto(db: Session, id_sala: int, caminho_foto: str):
+
     sala = buscar_sala_id(db, id_sala)
     if not sala:
         return None
@@ -115,15 +147,12 @@ def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
 
     return sala
 
-    
-def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse):
 
-    sala = buscar_sala_id(db, dados_sala.id)
+def remover_sala(db: Session, id_sala: int):
+    sala = buscar_sala_id(db, id_sala)
     if sala:
         db.delete(sala)
-        db.commit()
         return sala
-
     return None
 
 
