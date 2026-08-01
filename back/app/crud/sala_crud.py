@@ -105,3 +105,27 @@ def editar_sala(
         setattr(sala, campo, valor)
 
     return sala
+
+def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
+    
+    sala = buscar_sala_id(db, id_sala)
+    if not sala:
+        return None
+    sala.fotos = caminho_foto
+
+    return sala
+
+    
+def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse):
+
+    sala = buscar_sala_id(db, dados_sala.id)
+    if sala:
+        db.delete(sala)
+        db.commit()
+        return sala
+
+    return None
+
+
+def listar_salas(db: Session):
+    return db.query(Sala).order_by(Sala.status_ocupacao).all()
