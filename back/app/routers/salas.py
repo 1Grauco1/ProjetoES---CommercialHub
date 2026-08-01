@@ -37,8 +37,6 @@ async def buscar_por_id(id: int, db=Depends(get_db)):
     sala = sala_crud.buscar_sala_id(db, id)
     if not sala:
         raise HTTPException(status_code=404, detail="Sala não encontrada")
-    db.commit()
-    db.refresh(sala)
     return sala
 
 
@@ -61,8 +59,7 @@ async def editar_por_id(
     if payload.dados_sala:
         sala = sala_crud.editar_sala(db, id, payload.dados_sala)
     if payload.dados_endereco:
-        if sala:
-            endereco_crud.editar_endereco(db, sala.id_endereco, payload.dados_endereco)
+        endereco_crud.editar_endereco(db, sala.id_endereco, payload.dados_endereco)
     db.commit()
     db.refresh(sala)
     return sala
@@ -76,7 +73,7 @@ async def remover_por_id(id: int, db=Depends(get_db), user=Depends(get_current_u
 @router.post("/{id}/foto", response_model=SalaResponse)
 async def adicionar_foto_por_id(
     id: int,
-    foto: list[UploadFile] = File(...),
+    foto: UploadFile = File(...),
     db=Depends(get_db),
     user=Depends(get_current_user),
 ):
