@@ -13,7 +13,6 @@ class SalaCreate(BaseModel):
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
-    fotos: str | None
     descricao: str
     tipo: TipoSala
     quartos: int = Field(default=0, ge=0)
@@ -73,7 +72,6 @@ class SalaUpdatePatch(BaseModel):
     tamanho: Optional[float] = Field(default=None, gt=0)
     preco: Optional[float] = Field(default=None, gt=0)
     status_ocupacao: Optional[StatusSala] = None
-    fotos: Optional[str] = None
     descricao: Optional[str] = None
     tipo: Optional[TipoSala] = None
     quartos: Optional[int] = Field(default=None, ge=0)

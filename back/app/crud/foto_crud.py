@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 def adicionarFoto(db : Session, id_sala: int, caminho: str):
     foto = Foto(id_sala = id_sala, caminho = caminho)
     db.add(foto)
-    db.flush
+    db.flush()
 
 def buscarFoto(db : Session, id : int):
     return db.query(Foto).filter(Foto.id == id).first()
