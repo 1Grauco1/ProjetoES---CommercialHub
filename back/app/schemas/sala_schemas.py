@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from app.models.sala import StatusSala, TipoSala
-from app.schemas.endereco_schema import EnderecoUpdate
-from pydantic import BaseModel, ConfigDict
+from app.schemas.endereco_schema import EnderecoResponse, EnderecoUpdate
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class SalaCreate(BaseModel):
@@ -57,12 +57,12 @@ class SalaResponse(BaseModel):
     @field_validator("fotos", mode="before")
     @classmethod
     def normalizar_fotos(cls, valor):
-        if valor is None:
-            return []
-        if isinstance(valor, str):
-            return [{"id": 0, "id_sala": 0, "caminho": valor}]
+        if valor is None or isinstance(valor, str):
+            return valor
         if isinstance(valor, (list, tuple)):
-            return list(valor)
+            if not valor:
+                return None
+            return getattr(valor[0], "caminho", None) or str(valor[0])
         return valor
 
 
