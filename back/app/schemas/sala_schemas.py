@@ -13,7 +13,6 @@ class SalaCreate(BaseModel):
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
-    fotos: str | None
     descricao: str
     tipo: TipoSala
 
@@ -53,7 +52,6 @@ class SalaUpdatePatch(BaseModel):
     tamanho: Optional[float] = None
     preco: Optional[float] = None
     status_ocupacao: Optional[StatusSala] = None
-    fotos: Optional[str] = None
     descricao: Optional[str] = None
     tipo: Optional[TipoSala] = None
 

@@ -1,7 +1,3 @@
-import os
-from typing import List
-import uuid
-
 from app.crud import endereco_crud, proprietario_crud, sala_crud, foto_crud
 from app.schemas import endereco_schema, sala_schemas
 from app.services.arquivo_service import salvar_imagem
@@ -43,7 +39,7 @@ def adicionar_sala(
 async def adicionar_foto(
     db: Session,
     id_sala: int,
-    fotos: List[UploadFile],
+    fotos: list[UploadFile],
     id_pessoa: int,
 ):
     try:
@@ -58,7 +54,7 @@ async def adicionar_foto(
             raise HTTPException(
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )
-        
+
         for foto in fotos:
             caminho = await salvar_imagem(foto)
             foto_crud.adicionarFoto(db, id_sala, caminho)
