@@ -1,8 +1,8 @@
 from typing import Optional
 
 from app.models.sala import StatusSala, TipoSala
-from app.schemas.endereco_schema import EnderecoUpdate
-from pydantic import BaseModel, ConfigDict
+from app.schemas.endereco_schema import EnderecoResponse, EnderecoUpdate
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class SalaCreate(BaseModel):
@@ -30,6 +30,7 @@ class SalaResponse(BaseModel):
     fotos: Optional[str] = None
     descricao: str
     tipo: TipoSala
+    endereco: Optional[EnderecoResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
 
