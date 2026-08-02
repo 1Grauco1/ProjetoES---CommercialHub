@@ -30,14 +30,14 @@ class Sala(Base):
 
     id_endereco: Mapped[int] = mapped_column(ForeignKey("enderecos.id"))
 
+    titulo: Mapped[str] = mapped_column(String(150), nullable=False)
+
     tamanho: Mapped[float] = mapped_column(Float)
 
     preco: Mapped[float] = mapped_column(Float)
 
     status_ocupacao: Mapped[StatusSala] = mapped_column(SQLEnum(StatusSala))
 
-    fotos: Mapped[str] = mapped_column(Text, nullable= True)
-    
     descricao: Mapped[str] = mapped_column(Text, nullable=False)
     
     tipo : Mapped[TipoSala] = mapped_column(SQLEnum(TipoSala), nullable= False)
@@ -45,7 +45,13 @@ class Sala(Base):
     proprietario = relationship("Proprietario", back_populates="salas")
 
     endereco = relationship("Endereco", back_populates="sala")
+    
 
     contratos: Mapped[list["Contrato"]] = relationship(
         "Contrato", back_populates="sala"
     )
+    fotos = relationship(
+    "Foto",
+    back_populates="sala",
+    cascade="all, delete-orphan"
+)

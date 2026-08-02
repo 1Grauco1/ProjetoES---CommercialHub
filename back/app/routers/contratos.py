@@ -13,12 +13,12 @@ router = APIRouter(prefix="/contratos", tags=["contratos"])
 
 
 @router.get("/", response_model=list[ContratoResponse])
-async def listar(db=Depends(get_db)):
+async def listar(db=Depends(get_db), user=Depends(get_current_user)):
     return contrato_crud.listar_contratos(db)
 
 
 @router.get("/buscar_contrato/{id}", response_model=ContratoResponse)
-async def buscar(id: int, db=Depends(get_db)):
+async def buscar(id: int, db=Depends(get_db), user=Depends(get_current_user)):
     contrato = contrato_crud.buscar_contrato(db, id)
     if not contrato:
         raise HTTPException(status_code=404, detail="Contrato não encontrado")

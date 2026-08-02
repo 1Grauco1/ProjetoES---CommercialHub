@@ -48,9 +48,6 @@ def editar_contrato(
     for campo, valor in dados.items():
         setattr(contrato, campo, valor)
 
-    
-    db.refresh(contrato)
-
     return contrato
 
 
