@@ -90,6 +90,13 @@ async def remover_por_id(id: int, db=Depends(get_db), user=Depends(get_current_u
     return sala_service.remover_sala(db, id, user.id_pessoa)
 
 
+@router.post("/buscar_salas/filtrar/", response_model=list[SalaResponse])
+async def filtrar(
+    dados_salas: SalaFilterSearch, db=Depends(get_db), user=Depends(get_current_user)
+):
+    return sala_service.buscar_salas(db, dados_salas)
+
+
 @router.post("/{id}/foto", response_model=SalaResponse)
 async def adicionar_foto_por_id(
     id: int,
@@ -98,14 +105,6 @@ async def adicionar_foto_por_id(
     user=Depends(get_current_user),
 ):
     return await sala_service.adicionar_foto(db, id, foto, user.id_pessoa)
-
-
-@router.post("/buscar_salas/filtrar/")
-async def filtrar(
-    dados_salas: SalaFilterSearch, db=Depends(get_db), user=Depends(get_current_user)
-):
-    salas = sala_service.buscar_salas(db, dados_salas)
-    return {"mensagem": "Filtros aplicados."}
 
 
 @router.delete("/{id_sala}/foto/{id_foto}", response_model=SalaResponse)
