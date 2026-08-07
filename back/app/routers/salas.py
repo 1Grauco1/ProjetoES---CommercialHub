@@ -1,7 +1,7 @@
-from app.crud import endereco_crud, proprietario_crud, sala_crud
-from app.dependencies.auth_dependencie import get_current_user
-from app.dependencies.db_dependencie import get_db
-from app.schemas.endereco_schema import EnderecoCreate
+from app.crud import proprietario_crud, sala_crud
+from app.dependencies.auth_dependency import get_current_user
+from app.dependencies.db_dependency import get_db
+from app.schemas.endereco_schemas import EnderecoCreate
 from app.schemas.sala_schemas import (
     SalaCreate,
     SalaFilterSearch,

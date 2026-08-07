@@ -4,6 +4,7 @@ from app.crud import (
     proprietario_crud,
     usuario_crud,
 )
+from app.models.pessoa import Pessoa
 from app.models.usuario import NivelAcesso
 from app.schemas import pessoa_schemas, usuario_schemas
 from fastapi import HTTPException
@@ -14,11 +15,6 @@ def cadastrar_usuario(
     db: Session, dados_usuario: usuario_schemas.CadastroUsuario
 ) -> dict:
     try:
-        if dados_usuario.nivel_acesso == NivelAcesso.ADMIN:
-            raise HTTPException(
-                status_code=400, detail="Não é possível criar conta de Administrador."
-            )
-
         if dados_usuario.nivel_acesso == NivelAcesso.ADMIN:
             raise HTTPException(
                 status_code=400, detail="Não é possível criar conta de Administrador."
@@ -57,15 +53,6 @@ def editar_usuario(
         pessoa = pessoa_crud.editar_pessoa(db, dados, id_pessoa)
         if not pessoa:
             raise HTTPException(status_code=404, detail="Pessoa não encontrada")
-
-        if dados.email is not None:
-            existente = usuario_crud.buscar_email(db, dados.email)
-            if existente and existente.id_pessoa != id_pessoa:
-                raise HTTPException(status_code=409, detail="E-mail já cadastrado.")
-            usuario = usuario_crud.buscar_usuario_por_id_pessoa(db, id_pessoa)
-            if usuario:
-                usuario.usuario = dados.email
-
         db.commit()
         db.refresh(pessoa)
         return pessoa
