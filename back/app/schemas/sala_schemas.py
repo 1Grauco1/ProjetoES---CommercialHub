@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from app.models.sala import StatusSala, TipoSala
-from app.schemas.endereco_schema import EnderecoResponse, EnderecoUpdate
-from pydantic import BaseModel, ConfigDict, field_validator
+from app.schemas.endereco_schemas import EnderecoResponse, EnderecoUpdate
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SalaCreate(BaseModel):
@@ -10,8 +10,8 @@ class SalaCreate(BaseModel):
     id_usuario: Optional[int] = None
     id_endereco: Optional[int] = None
     titulo: str
-    tamanho: float
-    preco: float
+    tamanho: float = Field(gt=0)
+    preco: float = Field(gt=0)
     status_ocupacao: StatusSala
     fotos: str | None
     descricao: str
@@ -71,7 +71,6 @@ class SalaResponse(BaseModel):
             return [{"id": 0, "id_sala": 0, "caminho": valor}]
         if isinstance(valor, (list, tuple)):
             return list(valor)
-        return valor
         return valor
 
 

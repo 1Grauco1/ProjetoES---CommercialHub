@@ -1,6 +1,6 @@
 from app.crud import pessoa_crud
-from app.dependencies.auth_dependencie import get_current_user
-from app.dependencies.db_dependencie import get_db
+from app.dependencies.auth_dependency import get_current_user
+from app.dependencies.db_dependency import get_db
 from app.schemas.pessoa_schemas import PessoaResponse, PessoaUpdate
 from app.services import pessoa_service
 from fastapi import APIRouter, Depends, HTTPException
@@ -40,9 +40,4 @@ async def editar_usuario(
         raise HTTPException(
             status_code=401, detail="Usuário não autorizado para realizar ação!"
         )
-    pessoa = pessoa_crud.editar_pessoa(db, dados, id_pessoa)
-    if not pessoa:
-        raise HTTPException(status_code=404, detail="Pessoa não encontrada")
-    db.commit()
-    db.refresh(pessoa)
-    return pessoa
+    return pessoa_service.editar_usuario(db, id_pessoa, dados)
