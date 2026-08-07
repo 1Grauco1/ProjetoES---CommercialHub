@@ -1,9 +1,12 @@
 from app.crud import inquilino_crud
+from app.models.inquilino import Inquilino
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 
-def registrar_inquilino(db: Session, id_pessoa: int, cadastro_profissional: str):
+def registrar_inquilino(
+    db: Session, id_pessoa: int, cadastro_profissional: str
+) -> Inquilino:
     try:
         existente = inquilino_crud.buscar_inquilino_pessoa(db, id_pessoa)
         if existente:

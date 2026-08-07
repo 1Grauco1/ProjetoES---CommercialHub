@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EnderecoCreate(BaseModel):
@@ -8,7 +8,7 @@ class EnderecoCreate(BaseModel):
     numero: str
     bairro: str
     cidade: str
-    estado: str
+    estado: str = Field(max_length=2)
     cep: str
 
 
@@ -29,5 +29,5 @@ class EnderecoUpdate(BaseModel):
     numero: Optional[str] = None
     bairro: Optional[str] = None
     cidade: Optional[str] = None
-    estado: Optional[str] = None
+    estado: Optional[str] = Field(default=None, max_length=2)
     cep: Optional[str] = None

@@ -1,7 +1,7 @@
-from app.crud import endereco_crud, proprietario_crud, sala_crud
-from app.dependencies.auth_dependencie import get_current_user
-from app.dependencies.db_dependencie import get_db
-from app.schemas.endereco_schema import EnderecoCreate
+from app.crud import proprietario_crud, sala_crud
+from app.dependencies.auth_dependency import get_current_user
+from app.dependencies.db_dependency import get_db
+from app.schemas.endereco_schemas import EnderecoCreate
 from app.schemas.sala_schemas import (
     SalaCreate,
     SalaFilterSearch,
@@ -47,23 +47,7 @@ async def editar_por_id(
     db=Depends(get_db),
     user=Depends(get_current_user),
 ):
-    proprietario = proprietario_crud.buscar_proprietario_pessoa(db, user.id_pessoa)
-    sala = sala_crud.buscar_sala_id(db, id)
-    if not sala:
-        raise HTTPException(status_code=404, detail="Sala não encontrada")
-    if not proprietario or sala.id_proprietario != proprietario.id:
-        raise HTTPException(
-            status_code=401, detail="Usuário não autorizado para realizar ação!"
-        )
-
-    if payload.dados_sala:
-        sala = sala_crud.editar_sala(db, id, payload.dados_sala)
-    if payload.dados_endereco:
-        if sala:
-            endereco_crud.editar_endereco(db, sala.id_endereco, payload.dados_endereco)
-    db.commit()
-    db.refresh(sala)
-    return sala
+    return sala_service.editar_sala(db, id, payload, user.id_pessoa)
 
 
 @router.delete("/{id}")

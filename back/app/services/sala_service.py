@@ -1,5 +1,6 @@
-from app.crud import endereco_crud, proprietario_crud, sala_crud, foto_crud
-from app.schemas import endereco_schema, sala_schemas
+from app.crud import endereco_crud, foto_crud, proprietario_crud, sala_crud
+from app.models.sala import Sala
+from app.schemas import endereco_schemas, sala_schemas
 from app.services.arquivo_service import salvar_imagem
 from fastapi import File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
@@ -8,9 +9,9 @@ from sqlalchemy.orm import Session
 def adicionar_sala(
     db: Session,
     dados_sala: sala_schemas.SalaCreate,
-    dados_endereco: endereco_schema.EnderecoCreate,
+    dados_endereco: endereco_schemas.EnderecoCreate,
     id_pessoa: int,
-):
+) -> Sala:
     try:
         proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
         if not proprietario:
@@ -36,14 +37,45 @@ def adicionar_sala(
         raise
 
 
+def editar_sala(
+    db: Session,
+    id_sala: int,
+    payload: sala_schemas.SalaUpdatePayload,
+    id_pessoa: int,
+) -> Sala:
+    try:
+        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
+        sala = sala_crud.buscar_sala_id(db, id_sala)
+        if not sala:
+            raise HTTPException(status_code=404, detail="Sala não encontrada")
+        if not proprietario or sala.id_proprietario != proprietario.id:
+            raise HTTPException(
+                status_code=401, detail="Usuário não autorizado para realizar ação!"
+            )
+
+        if payload.dados_sala:
+            sala = sala_crud.editar_sala(db, id_sala, payload.dados_sala)
+        if payload.dados_endereco:
+            endereco_crud.editar_endereco(db, sala.id_endereco, payload.dados_endereco)
+
+        db.commit()
+        db.refresh(sala)
+        return sala
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
+
+
 async def adicionar_foto(
     db: Session,
     id_sala: int,
     fotos: list[UploadFile],
     id_pessoa: int,
-):
+) -> Sala:
     try:
-
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
         if not sala:
@@ -77,7 +109,7 @@ async def remover_foto(
     id_sala: int,
     id_foto: int,
     id_pessoa: int,
-):
+) -> Sala:
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
         if not sala:
@@ -107,7 +139,7 @@ async def remover_foto(
         raise
 
 
-def remover_sala(db: Session, id_sala: int, id_pessoa: int):
+def remover_sala(db: Session, id_sala: int, id_pessoa: int) -> dict:
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
@@ -133,12 +165,14 @@ def remover_sala(db: Session, id_sala: int, id_pessoa: int):
         raise
 
 
-def buscar_salas(db: Session, dados_sala: sala_schemas.SalaFilterSearch):
+def buscar_salas(
+    db: Session, dados_sala: sala_schemas.SalaFilterSearch
+) -> list[Sala]:
     try:
         salas = sala_crud.buscar_salas_filtros(db, dados_sala)
 
         if not salas:
-            raise HTTPException(status_code=400, detail="Sala não encontrada.")
+            raise HTTPException(status_code=404, detail="Sala não encontrada.")
         return salas
     except HTTPException:
         db.rollback()

@@ -1,6 +1,6 @@
 from app.crud import contrato_crud
-from app.dependencies.auth_dependencie import get_current_user
-from app.dependencies.db_dependencie import get_db
+from app.dependencies.auth_dependency import get_current_user
+from app.dependencies.db_dependency import get_db
 from app.schemas.contrato_schemas import (
     ContratoCreate,
     ContratoResponse,

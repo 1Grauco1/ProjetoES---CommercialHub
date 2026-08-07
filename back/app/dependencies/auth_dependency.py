@@ -1,6 +1,6 @@
 from app.core.security import verificar_access_token
-from app.crud.usuario_crud import buscar_id_usuario
-from app.dependencies.db_dependencie import get_db
+from app.crud.usuario_crud import buscar_usuario_por_id_pessoa
+from app.dependencies.db_dependency import get_db
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -27,7 +27,7 @@ def get_current_user(
     except Exception:
         raise credenciais_exceptions
 
-    usuario = buscar_id_usuario(db, id_usuario)
+    usuario = buscar_usuario_por_id_pessoa(db, id_usuario)
     if usuario is None:
         raise credenciais_exceptions
 
