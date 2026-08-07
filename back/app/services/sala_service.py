@@ -120,6 +120,7 @@ def remover_sala(db: Session, id_sala: int, id_pessoa: int):
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )
 
+        foto_crud.removerFotosCompletas(db, id_sala)
         db.delete(sala)
         db.commit()
         return {"message": "Sala removida."}
