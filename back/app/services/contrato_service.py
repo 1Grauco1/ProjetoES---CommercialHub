@@ -52,9 +52,20 @@ def editar_contrato(
 
 def remover_contrato(db: Session, id_contrato: int) -> dict:
     try:
-        contrato = contrato_crud.remover_contrato(db, id_contrato)
+        contrato = contrato_crud.buscar_contrato(db, id_contrato)
         if not contrato:
             raise HTTPException(status_code=404, detail="Contrato não encontrado")
+
+        sala = sala_crud.buscar_sala_id(db, contrato.id_sala)
+        contrato_crud.remover_contrato(db, id_contrato)
+
+        if sala:
+            sala_crud.editar_sala(
+                db,
+                sala.id,
+                sala_schemas.SalaUpdatePatch(status_ocupacao=StatusSala.DISPONIVEL),
+            )
+
         db.commit()
         return {"message": "Contrato removido."}
     except HTTPException:
