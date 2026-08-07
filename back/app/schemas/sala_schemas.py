@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from app.models.sala import StatusSala, TipoSala
-from app.schemas.endereco_schema import EnderecoResponse, EnderecoUpdate
-from pydantic import BaseModel, ConfigDict, field_validator
+from app.schemas.endereco_schemas import EnderecoResponse, EnderecoUpdate
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class SalaCreate(BaseModel):
@@ -10,8 +10,8 @@ class SalaCreate(BaseModel):
     id_proprietario: Optional[int] = None
     id_endereco: Optional[int] = None
     titulo: str
-    tamanho: float
-    preco: float
+    tamanho: float = Field(gt=0)
+    preco: float = Field(gt=0)
     status_ocupacao: StatusSala
     descricao: str
     tipo: TipoSala
@@ -51,15 +51,14 @@ class SalaResponse(BaseModel):
         if isinstance(valor, (list, tuple)):
             return list(valor)
         return valor
-        return valor
 
 
 class SalaUpdatePatch(BaseModel):
 
     titulo: Optional[str] = None
     id_endereco: Optional[int] = None
-    tamanho: Optional[float] = None
-    preco: Optional[float] = None
+    tamanho: Optional[float] = Field(default=None, gt=0)
+    preco: Optional[float] = Field(default=None, gt=0)
     status_ocupacao: Optional[StatusSala] = None
     descricao: Optional[str] = None
     tipo: Optional[TipoSala] = None
@@ -75,9 +74,9 @@ class SalaFilterSearch(BaseModel):
 
     cidade: Optional[str] = None
     estado: Optional[str] = None
-    CEP: Optional[str] = None
-    tamanho_min: Optional[float] = None
-    tamanho_max: Optional[float] = None
-    preco_min: Optional[float] = None
-    preco_max: Optional[float] = None
+    cep: Optional[str] = None
+    tamanho_min: Optional[float] = Field(default=None, gt=0)
+    tamanho_max: Optional[float] = Field(default=None, gt=0)
+    preco_min: Optional[float] = Field(default=None, gt=0)
+    preco_max: Optional[float] = Field(default=None, gt=0)
     tipo: Optional[TipoSala] = None

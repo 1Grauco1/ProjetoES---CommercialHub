@@ -1,6 +1,6 @@
 from app.crud import proprietario_crud
-from app.dependencies.auth_dependencie import get_current_user
-from app.dependencies.db_dependencie import get_db
+from app.dependencies.auth_dependency import get_current_user
+from app.dependencies.db_dependency import get_db
 from app.schemas.proprietario_schemas import ProprietarioCreate, ProprietarioResponse
 from app.services import proprietario_service
 from fastapi import APIRouter, Depends, HTTPException

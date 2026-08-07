@@ -1,9 +1,12 @@
 from app.crud import proprietario_crud
+from app.models.proprietario import Proprietario
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 
-def registrar_proprietario(db: Session, id_pessoa: int, documentos: str):
+def registrar_proprietario(
+    db: Session, id_pessoa: int, documentos: str
+) -> Proprietario:
     try:
         existente = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
         if existente:
