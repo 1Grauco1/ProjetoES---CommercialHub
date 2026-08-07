@@ -106,3 +106,15 @@ async def filtrar(
 ):
     salas = sala_service.buscar_salas(db, dados_salas)
     return {"mensagem": "Filtros aplicados."}
+
+
+@router.delete("/{id_sala}/foto/{id_foto}", response_model=SalaResponse)
+async def deletar_foto(
+    id_sala: int,
+    id_foto: int,
+    db=Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return await sala_service.remover_foto(
+        db=db, id_sala=id_sala, id_foto=id_foto, id_pessoa=user.id_pessoa
+    )

@@ -74,6 +74,41 @@ async def adicionar_foto(
         raise
 
 
+async def remover_foto(
+    db: Session,
+    id_sala: int,
+    id_foto: int,
+    id_pessoa: int,
+):
+    try:
+        sala = sala_crud.buscar_sala_id(db, id_sala)
+        if not sala:
+            raise HTTPException(status_code=404, detail="Sala não encontrada.")
+
+        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
+        if not proprietario or sala.id_proprietario != proprietario.id:
+            raise HTTPException(
+                status_code=401, detail="Usuário não autorizado para realizar ação!"
+            )
+
+        foto_deletada = foto_crud.removerFoto(db, id_foto)
+
+        if not foto_deletada:
+            raise HTTPException(status_code=404, detail="Foto não encontrada.")
+
+        db.commit()
+        db.refresh(sala)
+
+        return sala
+
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
+
+
 def remover_sala(db: Session, id_sala: int, id_pessoa: int):
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
