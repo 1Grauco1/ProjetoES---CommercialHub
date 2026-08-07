@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from app.models.sala import StatusSala, TipoSala
 from app.schemas.endereco_schema import EnderecoResponse, EnderecoUpdate
@@ -17,6 +17,14 @@ class SalaCreate(BaseModel):
     tipo: TipoSala
 
 
+class FotoResponse(BaseModel):
+    id: int
+    id_sala: int
+    caminho: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class SalaResponse(BaseModel):
 
     id: int
@@ -26,7 +34,7 @@ class SalaResponse(BaseModel):
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
-    fotos: Optional[str] = None
+    fotos: List[FotoResponse] = []
     descricao: str
     tipo: TipoSala
     endereco: Optional[EnderecoResponse] = None
@@ -36,12 +44,13 @@ class SalaResponse(BaseModel):
     @field_validator("fotos", mode="before")
     @classmethod
     def normalizar_fotos(cls, valor):
-        if valor is None or isinstance(valor, str):
-            return valor
+        if valor is None:
+            return []
+        if isinstance(valor, str):
+            return [{"id": 0, "id_sala": 0, "caminho": valor}]
         if isinstance(valor, (list, tuple)):
-            if not valor:
-                return None
-            return getattr(valor[0], "caminho", None) or str(valor[0])
+            return list(valor)
+        return valor
         return valor
 
 
