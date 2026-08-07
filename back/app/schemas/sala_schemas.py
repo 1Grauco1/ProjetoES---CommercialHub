@@ -28,6 +28,14 @@ class SalaCreate(BaseModel):
     estacionamento: bool = False
 
 
+class FotoResponse(BaseModel):
+    id: int
+    id_sala: int
+    caminho: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class SalaResponse(BaseModel):
 
     id: int
@@ -37,7 +45,7 @@ class SalaResponse(BaseModel):
     tamanho: float
     preco: float
     status_ocupacao: StatusSala
-    fotos: Optional[str] = None
+    fotos: List[FotoResponse] = []
     descricao: str
     tipo: TipoSala
     quartos: int
@@ -57,12 +65,13 @@ class SalaResponse(BaseModel):
     @field_validator("fotos", mode="before")
     @classmethod
     def normalizar_fotos(cls, valor):
-        if valor is None or isinstance(valor, str):
-            return valor
+        if valor is None:
+            return []
+        if isinstance(valor, str):
+            return [{"id": 0, "id_sala": 0, "caminho": valor}]
         if isinstance(valor, (list, tuple)):
-            if not valor:
-                return None
-            return getattr(valor[0], "caminho", None) or str(valor[0])
+            return list(valor)
+        return valor
         return valor
 
 
