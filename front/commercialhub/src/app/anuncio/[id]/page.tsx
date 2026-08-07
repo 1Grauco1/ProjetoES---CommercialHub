@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -30,16 +30,14 @@ import { salaIdFromSlug } from "@/src/utils/slug";
 
 const API_URL = "http://localhost:8000";
 
-export default function AnuncioPage() {
-  const { id: slug } = useParams<{ id: string }>();
-  const salaId = salaIdFromSlug(slug);
+function AnuncioContent() {
+  const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   
   const slug = params?.id;
   const salaId = salaIdFromSlug(slug);
-  const searchParams = useSearchParams();
   const origem = searchParams.get("from");
-
+  
   let voltarHref = "/dashboard";
   let textoVoltar = "Voltar para o dashboard";
 
@@ -64,8 +62,9 @@ export default function AnuncioPage() {
         </p>
       </div>
     );
+  }
 
-  if (loading)
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
         <Header />
@@ -74,8 +73,9 @@ export default function AnuncioPage() {
         </p>
       </div>
     );
+  }
 
-  if (error || !sala)
+  if (error || !sala) {
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
         <Header />
@@ -84,6 +84,7 @@ export default function AnuncioPage() {
         </p>
       </div>
     );
+  }
 
   const endereco = sala.endereco
     ? `${sala.endereco.rua}, ${sala.endereco.numero} · ${sala.endereco.cidade}, ${sala.endereco.estado}`
@@ -188,13 +189,11 @@ export default function AnuncioPage() {
               <MapPin size={18} />
               {endereco}
             </p>
-
             <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">Sobre o imóvel</h2>
               <p className="mt-4 whitespace-pre-wrap leading-7 text-[#4f5565]">
                 {sala.descricao}
               </p>
-
               <h2 className="mt-8 text-xl font-bold">
                 Características da sala
               </h2>
@@ -262,6 +261,7 @@ export default function AnuncioPage() {
               )}
             </section>
           </div>
+          
           <aside className="h-fit rounded-2xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,.14)] lg:sticky lg:top-24">
             <p className="text-sm text-[#737791]">Valor mensal</p>
             <p className="mt-1 text-3xl font-bold">
@@ -285,5 +285,19 @@ export default function AnuncioPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function AnuncioPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#f5f5f5]">
+          <LoaderCircle className="animate-spin text-[#d35400]" size={42} />
+        </div>
+      }
+    >
+      <AnuncioContent />
+    </Suspense>
   );
 }
