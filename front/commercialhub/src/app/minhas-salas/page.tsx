@@ -2,8 +2,8 @@
 
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import PageHeader from "@/src/components/dashboard/PageHeader";
-import { useSalas } from "@/src/lib/use-salas";
-import { deletarSala } from "@/src/lib/salas-api";
+import { useSalas } from "@/src/hooks/use-salas";
+import { deletarSala } from "@/src/services/salas.service";
 import {
   MapPin,
   Pencil,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { salaSlug } from "@/src/lib/sala-slug";
+import { salaSlug } from "@/src/utils/slug";
 
 const statusClass: Record<string, string> = {
   Disponível: "bg-emerald-100 text-emerald-700",
@@ -117,7 +117,14 @@ export default function SalasPage() {
                 {sala.fotos ? (
                   <img
                     className="h-full w-full object-cover"
-                    src={sala.fotos}
+                    src={(() => {
+                      const foto = Array.isArray(sala.fotos)
+                        ? sala.fotos[0]
+                        : sala.fotos;
+                      return typeof foto === "object" && foto !== null
+                        ? foto.url || ""
+                        : foto;
+                    })()}
                     alt={`Sala ${sala.id}`}
                   />
                 ) : (

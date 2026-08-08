@@ -14,9 +14,9 @@ import {
   ArrowLeft 
 } from "lucide-react"; 
 import Header from "@/src/components/layout/Header";
-import { useSalas } from "@/src/lib/use-salas";
-import { salaSlug } from "@/src/lib/sala-slug";
-import { formatCurrency } from "@/src/lib/rooms";
+import { useSalas } from "@/src/hooks/use-salas";
+import { salaSlug } from "@/src/utils/slug";
+import { formatCurrency } from "@/src/utils/format";
 
 type Filter = "Todas" | "Disponível" | "Alugada" | "Reservada" | "Manutenção";
 

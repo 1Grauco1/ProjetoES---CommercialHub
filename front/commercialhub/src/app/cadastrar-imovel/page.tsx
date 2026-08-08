@@ -1,7 +1,7 @@
 'use client';
 
 import DashboardShell from '@/src/components/dashboard/DashboardShell';
-import { criarSala } from '@/src/lib/salas-api';
+import { criarSala } from '@/src/services/salas.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, ChevronRight, ImagePlus, LoaderCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';

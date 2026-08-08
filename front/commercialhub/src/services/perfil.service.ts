@@ -80,23 +80,6 @@ export async function atualizarPerfil(
     payload.telefone = dados.telefone;
   }
 
-  /*
-   * FOTO DO USUÁRIO
-   *
-   * O backend ainda não aceita foto.
-   * Quando a API estiver pronta, a implementação poderá
-   * ser adicionada aqui sem alterar a página de edição.
-   */
-
-  /*
-   * TIPO DE CONTA
-   *
-   * O backend atual de Pessoa não possui esse campo
-   * na atualização. Mantemos o campo no frontend para
-   * compatibilidade, mas não o enviamos enquanto a API
-   * não estiver preparada para recebê-lo.
-   */
-
   return request<Perfil>(`/usuario/editar/${idPessoa}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
@@ -114,3 +97,9 @@ export function getInitials(nome?: string | null): string {
 
   return `${partes[0][0]}${partes[partes.length - 1][0]}`.toUpperCase();
 }
+
+export default {
+  obterPerfil,
+  atualizarPerfil,
+  getInitials,
+};

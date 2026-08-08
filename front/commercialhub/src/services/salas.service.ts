@@ -7,6 +7,7 @@ export type StatusSala =
 export type TipoSala = "Comercial" | "Residencial";
 
 export type Endereco = {
+  id?: number;
   rua: string;
   numero: string;
   bairro: string;
@@ -14,6 +15,8 @@ export type Endereco = {
   estado: string;
   cep: string;
 };
+
+export type FotoItem = string | { id?: number; url: string };
 
 export type Sala = {
   id: number;
@@ -23,52 +26,11 @@ export type Sala = {
   tamanho: number;
   preco: number;
   status_ocupacao: StatusSala;
-  fotos?: string[] | null;
+  fotos?: FotoItem[] | string | null;
   descricao: string;
   tipo: TipoSala;
   endereco?: Endereco | null;
 };
-
-export async function criarSala(
-  payload: CriarSalaPayload,
-  images?: File[]
-) {
-  const sala = (await responseData(
-    await fetch("/api/salas", {
-      method: "POST",
-      headers: authHeaders(true),
-      body: JSON.stringify(payload),
-    }),
-    "Não foi possível cadastrar a sala."
-  )) as Sala;
-
-  if (images && images.length > 0) {
-    await enviarFotos(sala.id, sala, images);
-  }
-
-  return sala;
-}
-
-async function enviarFoto(id: number, sala: Sala, image: File) {
-  const formData = new FormData();
-  formData.append("foto", image);
-  formData.append("dados_sala", JSON.stringify(sala));
-
-  await responseData(
-    await fetch(`/api/salas/${id}/foto`, {
-      method: "POST",
-      headers: authHeaders(false),
-      body: formData,
-    }),
-    "Sala salva, mas não foi possível enviar a imagem."
-  );
-}
-
-async function enviarFotos(id: number, sala: Sala, images: File[]) {
-  for (const image of images) {
-    await enviarFoto(id, sala, image);
-  }
-}
 
 export type CriarSalaPayload = {
   dados_sala: Pick<
@@ -77,12 +39,12 @@ export type CriarSalaPayload = {
     | "tamanho"
     | "preco"
     | "status_ocupacao"
-    | "fotos"
     | "descricao"
     | "tipo"
   > & {
     id_proprietario: number;
     id_endereco: number;
+    fotos?: FotoItem[] | string | null;
   };
 
   dados_endereco: Endereco;
@@ -100,12 +62,8 @@ function authHeaders(json = true) {
       : null;
 
   return {
-    ...(json
-      ? { "Content-Type": "application/json" }
-      : {}),
-    ...(token
-      ? { Authorization: `Bearer ${token}` }
-      : {}),
+    ...(json ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
@@ -140,12 +98,72 @@ async function responseData(
   return data;
 }
 
+async function enviarFotos(id: number, images: File[]): Promise<Sala> {
+  const formData = new FormData();
+
+  images.forEach((image) => {
+    formData.append("foto", image);
+  });
+
+  const response = await fetch(`/api/salas/${id}/foto`, {
+    method: "POST",
+    headers: authHeaders(false),
+    body: formData,
+  });
+
+  return (await responseData(
+    response,
+    "Sala salva, mas não foi possível enviar as imagens."
+  )) as Sala;
+}
+
+export async function deletarFotoApi(
+  salaId: number | string,
+  fotoId: number | string
+) {
+  if (!salaId || !fotoId) {
+    throw new Error(`IDs inválidos para exclusão: salaId=${salaId}, fotoId=${fotoId}`);
+  }
+
+  const response = await fetch(`/api/salas/${salaId}/foto/${fotoId}`, {
+    method: "DELETE",
+    headers: authHeaders(false),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || errorData.message || "Falha ao apagar a foto no servidor.");
+  }
+
+  return await response.json();
+}
+
+export async function criarSala(
+  payload: CriarSalaPayload,
+  images?: File[]
+): Promise<Sala> {
+  let sala = (await responseData(
+    await fetch("/api/salas", {
+      method: "POST",
+      headers: authHeaders(true),
+      body: JSON.stringify(payload),
+    }),
+    "Não foi possível cadastrar a sala."
+  )) as Sala;
+
+  if (images && images.length > 0) {
+    sala = await enviarFotos(sala.id, images);
+  }
+
+  return sala;
+}
+
 export async function atualizarSala(
   id: number,
   payload: AtualizarSalaPayload,
   images?: File[]
-) {
-  const sala = (await responseData(
+): Promise<Sala> {
+  let sala = (await responseData(
     await fetch(`/api/salas/${id}`, {
       method: "PATCH",
       headers: authHeaders(true),
@@ -155,7 +173,7 @@ export async function atualizarSala(
   )) as Sala;
 
   if (images && images.length > 0) {
-    await enviarFotos(id, sala, images);
+    sala = await enviarFotos(id, images);
   }
 
   return sala;
@@ -164,10 +182,16 @@ export async function atualizarSala(
 export async function deletarSala(id: number) {
   await responseData(
     await fetch(`/api/salas/${id}`, {
-      method: "DELETE",
-      headers: authHeaders(false),
-    }),
+    method: "DELETE",
+    headers: authHeaders(false),
+  }),
     "Não foi possível deletar a sala."
   );
 }
 
+export default {
+  criarSala,
+  atualizarSala,
+  deletarSala,
+  deletarFotoApi,
+};

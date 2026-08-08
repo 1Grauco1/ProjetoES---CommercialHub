@@ -1,7 +1,7 @@
 'use client';
 
 import DashboardShell from '@/src/components/dashboard/DashboardShell';
-import { usePerfil } from '@/src/lib/use-salas';
+import { usePerfil } from '@/src/hooks/use-salas';
 import { Mail, Phone, User, Pencil, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Building2, FileText, LayoutDashboard, LogOut, Menu, Search, WalletCards, X } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { usePerfil } from '@/src/lib/use-salas';
+import { usePerfil } from '@/src/hooks/use-salas';
 
 const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },

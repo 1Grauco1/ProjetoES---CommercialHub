@@ -1,8 +1,8 @@
 'use client';
 
 import DashboardShell from '@/src/components/dashboard/DashboardShell';
-import { atualizarPerfil } from '@/src/lib/perfil-api';
-import { usePerfil } from '@/src/lib/use-salas';
+import { atualizarPerfil } from '@/src/services/perfil.service';
+import { usePerfil } from '@/src/hooks/use-salas';
 import {
   LoaderCircle,
   Mail,
