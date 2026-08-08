@@ -1,6 +1,6 @@
 from app.models import Endereco, Sala
 from app.schemas import sala_schemas
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 
@@ -28,14 +28,26 @@ def buscar_salas_filtros(
 ) -> list[Sala]:
     conditions = []
 
+    if filtros.termo:
+        termo = f"%{filtros.termo}%"
+        conditions.append(
+            or_(Sala.titulo.ilike(termo), Sala.descricao.ilike(termo))
+        )
+
     if filtros.cidade:
         conditions.append(Endereco.cidade.ilike(f"%{filtros.cidade}%"))
 
     if filtros.estado:
         conditions.append(Endereco.estado == filtros.estado)
 
+    if filtros.bairro:
+        conditions.append(Endereco.bairro.ilike(f"%{filtros.bairro}%"))
+
     if filtros.cep:
         conditions.append(Endereco.cep == filtros.cep)
+
+    if filtros.status_ocupacao is not None:
+        conditions.append(Sala.status_ocupacao == filtros.status_ocupacao)
 
     if filtros.tamanho_min is not None:
         conditions.append(Sala.tamanho >= filtros.tamanho_min)
@@ -51,6 +63,28 @@ def buscar_salas_filtros(
 
     if filtros.tipo is not None:
         conditions.append(Sala.tipo == filtros.tipo)
+
+    if filtros.quartos_min is not None:
+        conditions.append(Sala.quartos >= filtros.quartos_min)
+
+    if filtros.banheiros_min is not None:
+        conditions.append(Sala.banheiros >= filtros.banheiros_min)
+
+    if filtros.vagas_garagem_min is not None:
+        conditions.append(Sala.vagas_garagem >= filtros.vagas_garagem_min)
+
+    for campo in [
+        "ar_condicionado",
+        "elevador",
+        "portaria",
+        "mobiliada",
+        "internet",
+        "alarme",
+        "estacionamento",
+    ]:
+        valor = getattr(filtros, campo, None)
+        if valor is True:
+            conditions.append(getattr(Sala, campo).is_(True))
 
     query = select(Sala).join(Endereco).where(*conditions)
 

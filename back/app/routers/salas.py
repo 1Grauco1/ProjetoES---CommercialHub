@@ -32,6 +32,18 @@ async def minhas(db=Depends(get_db), user=Depends(get_current_user)):
     return sala_crud.listar_salas_proprietario(db, proprietario.id)
 
 
+@router.post("/buscar_salas/filtrar/", response_model=list[SalaResponse])
+async def filtrar(
+    dados_salas: SalaFilterSearch, db=Depends(get_db), user=Depends(get_current_user)
+):
+    return sala_service.buscar_salas(db, dados_salas)
+
+
+@router.post("/buscar", response_model=list[SalaResponse])
+async def buscar_publico(dados_salas: SalaFilterSearch, db=Depends(get_db)):
+    return sala_service.buscar_salas(db, dados_salas)
+
+
 @router.get("/{id}", response_model=SalaResponse)
 async def buscar_por_id(id: int, db=Depends(get_db)):
     sala = sala_crud.buscar_sala_id(db, id)
@@ -53,13 +65,6 @@ async def editar_por_id(
 @router.delete("/{id}")
 async def remover_por_id(id: int, db=Depends(get_db), user=Depends(get_current_user)):
     return sala_service.remover_sala(db, id, user.id_pessoa)
-
-
-@router.post("/buscar_salas/filtrar/", response_model=list[SalaResponse])
-async def filtrar(
-    dados_salas: SalaFilterSearch, db=Depends(get_db), user=Depends(get_current_user)
-):
-    return sala_service.buscar_salas(db, dados_salas)
 
 
 @router.post("/{id}/foto", response_model=SalaResponse)
