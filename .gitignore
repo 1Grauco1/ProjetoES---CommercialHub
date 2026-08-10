@@ -11,6 +11,9 @@ venv/
 # Banco SQLite
 *.db
 
+# Arquivos enviados pelo usuário
+back/uploads/
+
 # VS Code
 .vscode/
 
