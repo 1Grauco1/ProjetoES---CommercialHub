@@ -169,14 +169,7 @@ def buscar_salas(
     db: Session, dados_sala: sala_schemas.SalaFilterSearch
 ) -> list[Sala]:
     try:
-        salas = sala_crud.buscar_salas_filtros(db, dados_sala)
-
-        if not salas:
-            raise HTTPException(status_code=404, detail="Sala não encontrada.")
-        return salas
-    except HTTPException:
-        db.rollback()
-        raise
+        return sala_crud.buscar_salas_filtros(db, dados_sala)
     except Exception:
         db.rollback()
         raise
