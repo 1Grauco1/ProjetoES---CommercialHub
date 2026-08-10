@@ -1,5 +1,6 @@
-"use client";
+'use client';
 
+import { useState } from "react"; // 
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -7,71 +8,155 @@ import {
   CalendarDays,
   MapPin,
   Snowflake,
+  LoaderCircle,
 } from "lucide-react";
 import Header from "@/src/components/layout/Header";
-import { formatCurrency } from "@/src/lib/rooms";
-import { useSala } from "@/src/lib/use-salas";
-import { useParams } from "next/navigation";
-import { salaIdFromSlug } from "@/src/lib/sala-slug";
+import { formatCurrency } from "@/src/utils/format";
+import { useSala } from "@/src/hooks/use-salas";
+import { useParams, useSearchParams } from "next/navigation";
+import { salaIdFromSlug } from "@/src/utils/slug";
+
+
+const API_URL = "http://localhost:8000"; 
 
 export default function AnuncioPage() {
   const { id: slug } = useParams<{ id: string }>();
   const salaId = salaIdFromSlug(slug);
+  const searchParams = useSearchParams();
+  const origem = searchParams.get("from");
+  
+  let voltarHref = "/dashboard";
+  let textoVoltar = "Voltar para o dashboard";
+
+  if (origem === "busca") {
+    voltarHref = "/busca-sala";
+    textoVoltar = "Voltar para a busca";
+  } else if (origem === "minhas-salas") {
+    voltarHref = "/minhas-salas";
+    textoVoltar = "Voltar para minhas salas";
+  }
+
   const { sala, loading, error } = useSala(salaId ? String(salaId) : "0");
+
+ 
+  const [fotoSelecionada, setFotoSelecionada] = useState<string | null>(null);
+
   if (!salaId)
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
         <Header />
-        <p className="mx-auto max-w-7xl px-5 py-10 text-red-700">
+        <p className="mx-auto max-w-7xl px-5 py-10 font-semibold text-red-700">
           Link de anúncio inválido.
         </p>
       </div>
     );
+
   if (loading)
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
         <Header />
-        <p className="mx-auto max-w-7xl px-5 py-10">Carregando anúncio...</p>
+        <p className="mx-auto max-w-7xl px-5 py-10 text-[#737791]">
+          Carregando anúncio...
+        </p>
       </div>
     );
+
   if (error || !sala)
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
         <Header />
-        <p className="mx-auto max-w-7xl px-5 py-10 text-red-700">
+        <p className="mx-auto max-w-7xl px-5 py-10 font-semibold text-red-700">
           {error ?? "Anúncio não encontrado."}
         </p>
       </div>
     );
+
   const endereco = sala.endereco
     ? `${sala.endereco.rua}, ${sala.endereco.numero} · ${sala.endereco.cidade}, ${sala.endereco.estado}`
     : "Endereço não informado";
+
+ 
+  const listaFotos: string[] = Array.isArray(sala.fotos)
+    ? sala.fotos.map((item: any) => {
+        let caminhoRelativo =
+          typeof item === "string" ? item : item?.caminho || item?.url || "";
+
+        if (!caminhoRelativo) return "";
+
+        
+        if (caminhoRelativo.startsWith("http")) return caminhoRelativo;
+
+       
+        if (!caminhoRelativo.startsWith("/")) {
+          caminhoRelativo = `/${caminhoRelativo}`;
+        }
+
+        // 4. Retorna a URL pronta
+        return `${API_URL}${caminhoRelativo}`;
+      }).filter(Boolean) // Remove eventuais caminhos vazios
+    : typeof sala.fotos === "string" && sala.fotos
+    ? [
+        sala.fotos.startsWith("http")
+          ? sala.fotos
+          : `${API_URL}${sala.fotos.startsWith("/") ? sala.fotos : `/${sala.fotos}`}`,
+      ]
+    : [];
+
+
+  const fotoExibida = fotoSelecionada || listaFotos[0];
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#1b263b]">
       <Header />
       <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <Link
-          href="/minhas-salas"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[#737791]"
+          href={voltarHref}
+          className="inline-flex items-center gap-2 text-sm font-semibold text-[#737791] transition-colors hover:text-[#1b263b]"
         >
           <ArrowLeft size={17} />
-          Voltar para meus anúncios
+          {textoVoltar}
         </Link>
+        
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.45fr_.75fr]">
           <div>
+           
             <div className="relative h-80 overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#1b263b,#d35400)] sm:h-110">
-              {sala.fotos ? (
+              {fotoExibida ? (
                 <img
-                  src={sala.fotos}
+                  src={fotoExibida}
                   alt={sala.titulo}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transition-all duration-300"
                 />
               ) : (
                 <div className="absolute inset-0 bg-[url('/landingPageBg.svg')] bg-cover bg-center opacity-35" />
               )}
             </div>
+
+          
+            {listaFotos.length > 1 && (
+              <div className="mt-4 flex items-center gap-3 overflow-x-auto pb-2">
+                {listaFotos.map((urlFoto, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setFotoSelecionada(urlFoto)}
+                    className={`relative h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                      fotoExibida === urlFoto
+                        ? "border-[#d35400] scale-105"
+                        : "border-transparent opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={urlFoto}
+                      alt={`Foto ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+
             <p className="mt-6 text-sm font-semibold text-[#d35400]">
-              {sala.status_ocupacao.toUpperCase()}
+              {sala.status_ocupacao?.toUpperCase() || "STATUS INDISPONÍVEL"}
             </p>
             <h1 className="mt-1 text-3xl font-bold sm:text-4xl">
               {sala.titulo}
@@ -83,9 +168,13 @@ export default function AnuncioPage() {
               <MapPin size={18} />
               {endereco}
             </p>
+            
             <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">Sobre o imóvel</h2>
-              <p className="mt-4 leading-7 text-[#4f5565]">{sala.descricao}</p>
+              <p className="mt-4 whitespace-pre-wrap leading-7 text-[#4f5565]">
+                {sala.descricao}
+              </p>
+              
               <h2 className="mt-8 text-xl font-bold">
                 Características da sala
               </h2>
@@ -114,13 +203,13 @@ export default function AnuncioPage() {
             <hr className="my-6 border-[#ececec]" />
             <button
               disabled={sala.status_ocupacao !== "Disponível"}
-              className="w-full rounded-xl bg-[#d35400] px-4 py-3.5 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-xl bg-[#d35400] px-4 py-3.5 font-semibold text-white transition-colors hover:bg-[#b04600] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#d35400]"
             >
               {sala.status_ocupacao === "Disponível"
                 ? "Quero alugar esta sala"
                 : "Sala indisponível"}
             </button>
-            <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d35400] px-4 py-3 font-semibold text-[#d35400]">
+            <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d35400] px-4 py-3 font-semibold text-[#d35400] transition-colors hover:bg-[#fff4ed]">
               <CalendarDays size={18} />
               Agendar visita gratuita
             </button>
@@ -129,4 +218,4 @@ export default function AnuncioPage() {
       </main>
     </div>
   );
-}
+} 

@@ -6,8 +6,9 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import { registerSchema, type RegisterFormValues } from '@/src/lib/auth-schema';
-import { authApi } from '@/src/lib/api';
+import { registerSchema } from '@/src/validators/auth';
+import type { RegisterFormValues } from '@/src/types/auth';
+import { authService } from '@/src/services/auth.service';
 
 
 
@@ -32,7 +33,7 @@ export default function CadastroPage() {
         setIsSubmitting(true);
 
         try {
-            await authApi.register({
+            await authService.register({
                 name: values.name,
                 email: values.email,
                 password: values.password,

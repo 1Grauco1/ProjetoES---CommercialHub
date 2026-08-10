@@ -43,6 +43,14 @@ async def filtrar(
 async def buscar_publico(dados_salas: SalaFilterSearch, db=Depends(get_db)):
     return sala_service.buscar_salas(db, dados_salas)
 
+@router.patch("/{id}", response_model=SalaResponse)
+async def editar_por_id(
+    id: int,
+    payload: SalaUpdatePayload,
+    db=Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return sala_service.editar_sala(db, id, payload, user.id_pessoa)
 
 @router.get("/{id}", response_model=SalaResponse)
 async def buscar_por_id(id: int, db=Depends(get_db)):

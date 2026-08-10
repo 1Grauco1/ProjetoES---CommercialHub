@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { Building2, FileText, LayoutDashboard, LogOut, Menu, Search, WalletCards, X } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { usePerfil } from '@/src/lib/use-salas';
+import { usePerfil } from '@/src/hooks/use-salas';
 
 const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,7 +25,9 @@ function initials(nome?: string | null) {
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [busca, setBusca] = useState('');
   const perfil = usePerfil();
   const ativo = pathname.startsWith('/perfil');
 
