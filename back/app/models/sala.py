@@ -26,7 +26,7 @@ class Sala(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    id_proprietario: Mapped[int] = mapped_column(ForeignKey("proprietarios.id"))
+    id_usuario: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
 
     id_endereco: Mapped[int] = mapped_column(ForeignKey("enderecos.id"))
 
@@ -54,7 +54,7 @@ class Sala(Base):
     alarme: Mapped[bool] = mapped_column(Boolean, default=False)
     estacionamento: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    proprietario = relationship("Proprietario", back_populates="salas")
+    usuario = relationship("Usuario", back_populates="salas")
 
     endereco = relationship("Endereco", back_populates="sala")
     

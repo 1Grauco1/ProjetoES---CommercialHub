@@ -1,4 +1,4 @@
-from app.crud import endereco_crud, foto_crud, proprietario_crud, sala_crud
+from app.crud import endereco_crud, foto_crud, sala_crud
 from app.models.sala import Sala
 from app.schemas import endereco_schemas, sala_schemas
 from app.services.arquivo_service import salvar_imagem
@@ -10,17 +10,13 @@ def adicionar_sala(
     db: Session,
     dados_sala: sala_schemas.SalaCreate,
     dados_endereco: endereco_schemas.EnderecoCreate,
-    id_pessoa: int,
+    id_usuario: int,
 ) -> Sala:
     try:
-        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
-        if not proprietario:
-            raise HTTPException(status_code=400, detail="Usuário não é proprietário.")
-
         endereco = endereco_crud.criar_endereco(db, dados_endereco)
 
         dados_sala.id_endereco = endereco.id
-        dados_sala.id_proprietario = proprietario.id
+        dados_sala.id_usuario = id_usuario
         sala = sala_crud.criar_sala(db, dados_sala)
 
         if not sala:
@@ -41,14 +37,13 @@ def editar_sala(
     db: Session,
     id_sala: int,
     payload: sala_schemas.SalaUpdatePayload,
-    id_pessoa: int,
+    id_usuario: int,
 ) -> Sala:
     try:
-        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
         sala = sala_crud.buscar_sala_id(db, id_sala)
         if not sala:
             raise HTTPException(status_code=404, detail="Sala não encontrada")
-        if not proprietario or sala.id_proprietario != proprietario.id:
+        if sala.id_usuario != id_usuario:
             raise HTTPException(
                 status_code=401, detail="Usuário não autorizado para realizar ação!"
             )
@@ -73,7 +68,7 @@ async def adicionar_foto(
     db: Session,
     id_sala: int,
     fotos: list[UploadFile],
-    id_pessoa: int,
+    id_usuario: int,
 ) -> Sala:
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
@@ -81,8 +76,7 @@ async def adicionar_foto(
         if not sala:
             raise HTTPException(status_code=404, detail="Sala não encontrada.")
 
-        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
-        if not proprietario or sala.id_proprietario != proprietario.id:
+        if sala.id_usuario != id_usuario:
             raise HTTPException(
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )
@@ -108,15 +102,14 @@ async def remover_foto(
     db: Session,
     id_sala: int,
     id_foto: int,
-    id_pessoa: int,
+    id_usuario: int,
 ) -> Sala:
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
         if not sala:
             raise HTTPException(status_code=404, detail="Sala não encontrada.")
 
-        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
-        if not proprietario or sala.id_proprietario != proprietario.id:
+        if sala.id_usuario != id_usuario:
             raise HTTPException(
                 status_code=401, detail="Usuário não autorizado para realizar ação!"
             )
@@ -139,15 +132,14 @@ async def remover_foto(
         raise
 
 
-def remover_sala(db: Session, id_sala: int, id_pessoa: int) -> dict:
+def remover_sala(db: Session, id_sala: int, id_usuario: int) -> dict:
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
         if not sala:
             raise HTTPException(status_code=404, detail="Sala não encontrada.")
 
-        proprietario = proprietario_crud.buscar_proprietario_pessoa(db, id_pessoa)
-        if not proprietario or sala.id_proprietario != proprietario.id:
+        if sala.id_usuario != id_usuario:
             raise HTTPException(
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )

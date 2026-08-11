@@ -18,9 +18,4 @@ class Pessoa(Base):
 
     usuario = relationship("Usuario", back_populates="pessoa", uselist=False)
 
-    proprietario = relationship("Proprietario", back_populates="pessoa", uselist=False)
-
-    inquilino = relationship("Inquilino", back_populates="pessoa", uselist=False)
-    
     endereco = relationship("Endereco", back_populates="pessoa", uselist= False )
-    
