@@ -29,7 +29,7 @@ async def buscar(id: int, db=Depends(get_db), user=Depends(get_current_user)):
 async def criar(
     dados: ContratoCreate, db=Depends(get_db), user=Depends(get_current_user)
 ):
-    return contrato_service.criar_contrato(db, dados)
+    return contrato_service.criar_contrato(db, dados, user.id)
 
 
 @router.patch("/editar_contrato/{id}", response_model=ContratoResponse)

@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
-from app.routers import auth, contratos, inquilinos, pessoas, proprietarios, salas,cep
+from app.routers import auth, cep, contratos, pessoas, salas
 
 app = FastAPI(title="CommercialHub", version="1.0")
 
@@ -36,8 +36,6 @@ app.include_router(auth.router)
 app.include_router(pessoas.router)
 app.include_router(salas.router)
 app.include_router(contratos.router)
-app.include_router(proprietarios.router)
-app.include_router(inquilinos.router)
 app.include_router(cep.router)
 
 app.mount(

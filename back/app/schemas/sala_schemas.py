@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class SalaCreate(BaseModel):
 
-    id_proprietario: Optional[int] = None
+    id_usuario: Optional[int] = None
     id_endereco: Optional[int] = None
     titulo: str
     tamanho: float = Field(gt=0)
@@ -38,7 +38,7 @@ class FotoResponse(BaseModel):
 class SalaResponse(BaseModel):
 
     id: int
-    id_proprietario: int
+    id_usuario: int
     id_endereco: int
     titulo: str
     tamanho: float

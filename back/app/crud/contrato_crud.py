@@ -4,8 +4,19 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 
-def criar_contrato(db: Session, dados_contrato: contrato_schemas.ContratoCreate) -> Contrato:
-    contrato = Contrato(**dados_contrato.model_dump())
+def criar_contrato(
+    db: Session,
+    dados_contrato: contrato_schemas.ContratoCreate,
+    id_usuario: int,
+) -> Contrato:
+    contrato = Contrato(
+        id_sala=dados_contrato.id_sala,
+        id_usuario=id_usuario,
+        data_inicio=dados_contrato.data_inicio,
+        data_termino=dados_contrato.data_termino,
+        valor=dados_contrato.valor,
+        status=dados_contrato.status,
+    )
 
     db.add(contrato)
     db.flush()

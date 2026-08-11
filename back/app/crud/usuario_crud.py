@@ -12,7 +12,6 @@ def criar_usuario(
         id_pessoa=id_pessoa,
         usuario=dados.email,
         senha=gerar_hash(dados.senha),
-        nivel_acesso=dados.nivel_acesso,
     )
 
     db.add(usuario)

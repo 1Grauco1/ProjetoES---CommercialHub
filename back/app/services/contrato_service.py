@@ -6,7 +6,9 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 
-def criar_contrato(db: Session, dados: contrato_schemas.ContratoCreate) -> Contrato:
+def criar_contrato(
+    db: Session, dados: contrato_schemas.ContratoCreate, id_usuario: int
+) -> Contrato:
     try:
         sala = sala_crud.buscar_sala_id(db, dados.id_sala)
         if not sala:
@@ -14,7 +16,7 @@ def criar_contrato(db: Session, dados: contrato_schemas.ContratoCreate) -> Contr
         if sala.status_ocupacao != StatusSala.DISPONIVEL:
             raise HTTPException(status_code=400, detail="Sala não está disponível")
 
-        contrato = contrato_crud.criar_contrato(db, dados)
+        contrato = contrato_crud.criar_contrato(db, dados, id_usuario)
         sala_crud.editar_sala(
             db,
             dados.id_sala,

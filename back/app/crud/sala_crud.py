@@ -17,9 +17,9 @@ def buscar_sala_id(db: Session, id: int) -> Sala | None:
     return db.scalar(select(Sala).where(Sala.id == id))
 
 
-def listar_salas_proprietario(db: Session, id_proprietario: int) -> list[Sala]:
+def listar_salas_usuario(db: Session, id_usuario: int) -> list[Sala]:
     return list(
-        db.scalars(select(Sala).where(Sala.id_proprietario == id_proprietario))
+        db.scalars(select(Sala).where(Sala.id_usuario == id_usuario))
     )
 
 

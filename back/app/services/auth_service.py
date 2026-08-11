@@ -17,7 +17,6 @@ def realizar_login(db: Session, email: str, senha: str) -> dict[str, str]:
         {
             "sub": usuario_buscado.usuario,
             "id": usuario_buscado.id_pessoa,
-            "nivel": usuario_buscado.nivel_acesso.value,
         }
     )
 
