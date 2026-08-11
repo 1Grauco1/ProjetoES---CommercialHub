@@ -14,7 +14,7 @@ import {
   ArrowLeft 
 } from "lucide-react"; 
 import Header from "@/src/components/layout/Header";
-import { useSalas } from "@/src/lib/use-salas";
+import { useTodasSalas } from "@/src/lib/use-salas";
 import { salaSlug } from "@/src/lib/sala-slug";
 import { formatCurrency } from "@/src/lib/rooms";
 
@@ -38,7 +38,7 @@ interface Sala {
   preco?: number;
   status_ocupacao?: string;
   fotos?: string | null;
-  endereco?: SalaEndereco;
+  endereco?: SalaEndereco | null;
 }
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
@@ -49,7 +49,7 @@ const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> 
   "Todas": { bg: "bg-slate-100", text: "text-slate-700", label: "Todas" },
 };
 
-function RoomCard({ sala }: { sala: Sala }) {
+function RoomCard({ sala }: Readonly<{ sala: Sala }>) {
   const [liked, setLiked] = useState(false);
   const statusAtual = sala.status_ocupacao || "Todas";
   const badge = STATUS_BADGE[statusAtual] || STATUS_BADGE["Todas"];
@@ -62,7 +62,13 @@ function RoomCard({ sala }: { sala: Sala }) {
   const districtText = sala.endereco?.cidade || "Local não informado";
   
   const tipoFormatado = (sala.tipo || "").toLowerCase();
-  const typeEmoji = tipoFormatado.includes("residencial") ? "🏠" : tipoFormatado.includes("coworking") ? "💻" : "🏢";
+  let typeEmoji = "🏢";
+
+  if (tipoFormatado.includes("residencial")) {
+    typeEmoji = "🏠";
+  } else if (tipoFormatado.includes("coworking")) {
+    typeEmoji = "💻";
+  }
 
   const tituloSeguro = sala.titulo || "Sala sem título";
 
@@ -81,6 +87,7 @@ function RoomCard({ sala }: { sala: Sala }) {
         <div className="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0.1)] via-transparent to-[rgba(0,0,0,0.7)] pointer-events-none" />
 
         <button
+          type="button"
           onClick={() => setLiked(!liked)}
           className="absolute left-2.5 top-2.5 z-10 flex size-7 items-center justify-center rounded-full bg-[rgba(255,255,255,0.9)] transition-colors hover:bg-white"
         >
@@ -124,13 +131,13 @@ function RoomCard({ sala }: { sala: Sala }) {
           </div>
           {available ? (
             <Link 
-              href={sala.id ? `/anuncio/${salaSlug(tituloSeguro, sala.id)}?from=busca` : "#"}
+              href={sala.id ? `/anuncio/${salaSlug(tituloSeguro, Number(sala.id))}?from=busca` : "#"}
               className="flex h-8 items-center justify-center rounded-[10px] bg-[#d35400] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#b84800]"
             >
               Ver Detalhes
             </Link>
           ) : (
-            <button disabled className="flex h-8 cursor-not-allowed items-center rounded-[10px] bg-[#ececec] px-4 text-xs font-semibold leading-[18px] text-[#979797]">
+            <button type="button" disabled className="flex h-8 cursor-not-allowed items-center rounded-[10px] bg-[#ececec] px-4 text-xs font-semibold leading-[18px] text-[#979797]">
               {statusAtual}
             </button>
           )}
@@ -144,7 +151,7 @@ function BuscaSalaPageContent() {
   const searchParams = useSearchParams();
   const termoInicial = searchParams?.get("q") || "";
   
-  const { salas, loading, error } = useSalas();
+  const { salas, loading, error } = useTodasSalas();
 
   const [activeFilter, setActiveFilter] = useState<Filter>("Todas");
   const [searchName, setSearchName] = useState(termoInicial);
@@ -245,6 +252,7 @@ function BuscaSalaPageContent() {
             {(["Todas", "Disponível", "Alugada", "Manutenção"] as Filter[]).map((f) => (
               <button
                 key={f}
+                type="button"
                 onClick={() => setActiveFilter(f)}
                 className={`h-8 shrink-0 rounded-full border px-[17px] py-px text-[13px] font-medium leading-[19.5px] whitespace-nowrap transition-colors ${
                   activeFilter === f
@@ -259,18 +267,20 @@ function BuscaSalaPageContent() {
 
           <div className="relative ml-2 shrink-0">
             <button
+              type="button"
               onClick={() => setShowSort(!showSort)}
               className="flex h-8 w-[147px] items-center justify-between rounded-full border border-[#d9d9d9] bg-white px-[17px] py-px transition-colors hover:border-[#d35400]"
             >
               <span className="truncate text-[13px] font-medium text-black">{sortBy}</span>
               <ChevronDown size={14} className="shrink-0 text-[#333]" />
             </button>
-            
+
             {showSort && (
               <div className="absolute right-0 top-10 z-50 min-w-[147px] overflow-hidden rounded-xl border border-[#d9d9d9] bg-white py-1 shadow-lg">
                 {SORT_OPTIONS.map((opt) => (
                   <button
                     key={opt}
+                    type="button"
                     onClick={() => { setSortBy(opt); setShowSort(false); }}
                     className={`w-full px-4 py-2 text-left text-[13px] transition-colors hover:bg-[#f5f5f7] ${opt === sortBy ? "font-semibold text-[#d35400]" : "text-[#333]"}`}
                   >
@@ -284,40 +294,50 @@ function BuscaSalaPageContent() {
       </div>
 
       <main className="z-10 mx-auto flex flex-1 flex-col w-full max-w-7xl px-5 py-8 sm:px-8">
-        {loading ? (
-           <div className="m-auto flex flex-col items-center justify-center gap-4 py-20 text-center">
-             <LoaderCircle className="animate-spin text-[#d35400]" size={42} />
-             <p className="text-lg font-semibold text-[#1b263b]">Carregando salas disponíveis...</p>
-           </div>
-        ) : error ? (
-           <div className="m-auto flex flex-col items-center justify-center gap-3 py-20 text-center">
-             <p className="text-lg font-semibold text-red-600">Erro ao carregar as salas</p>
-             <p className="text-sm text-[#737791]">{error}</p>
-           </div>
-        ) : (
-          <>
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-[#1b263b]">Salas Disponíveis</h2>
-              <p className="text-sm text-[#737791]">
-                {sorted.length} {sorted.length === 1 ? "sala encontrada" : "salas encontradas"}
-              </p>
-            </div>
+        {(() => {
+          if (loading) {
+            return (
+              <div className="m-auto flex flex-col items-center justify-center gap-4 py-20 text-center">
+                <LoaderCircle className="animate-spin text-[#d35400]" size={42} />
+                <p className="text-lg font-semibold text-[#1b263b]">Carregando salas disponíveis...</p>
+              </div>
+            );
+          }
 
-            {sorted.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {sorted.map((sala, index) => (
-                  <RoomCard key={sala.id || index} sala={sala} />
-                ))}
-              </div>
-            ) : (
+          if (error) {
+            return (
               <div className="m-auto flex flex-col items-center justify-center gap-3 py-20 text-center">
-                <p className="text-4xl">🔍</p>
-                <p className="text-lg font-semibold text-[#1b263b]">Nenhuma sala encontrada</p>
-                <p className="text-sm text-[#737791]">Tente ajustar os filtros ou a busca.</p>
+                <p className="text-lg font-semibold text-red-600">Erro ao carregar as salas</p>
+                <p className="text-sm text-[#737791]">{error}</p>
               </div>
-            )}
-          </>
-        )}
+            );
+          }
+
+          return (
+            <>
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[#1b263b]">Salas Disponíveis</h2>
+                <p className="text-sm text-[#737791]">
+                  {sorted.length} {sorted.length === 1 ? "sala encontrada" : "salas encontradas"}
+                </p>
+              </div>
+
+              {sorted.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {sorted.map((sala, index) => (
+                    <RoomCard key={sala.id || index} sala={sala} />
+                  ))}
+                </div>
+              ) : (
+                <div className="m-auto flex flex-col items-center justify-center gap-3 py-20 text-center">
+                  <p className="text-4xl">🔍</p>
+                  <p className="text-lg font-semibold text-[#1b263b]">Nenhuma sala encontrada</p>
+                  <p className="text-sm text-[#737791]">Tente ajustar os filtros ou a busca.</p>
+                </div>
+              )}
+            </>
+          );
+        })()}
       </main>
     </div>
   );

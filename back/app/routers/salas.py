@@ -14,6 +14,11 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 router = APIRouter(prefix="/salas", tags=["salas"])
 
 
+@router.get("/", response_model=list[SalaResponse])
+async def listar_todas(db=Depends(get_db)):
+    return sala_crud.listar_salas(db)
+
+
 @router.post("/criar_sala", response_model=SalaResponse)
 async def criar(
     dados_sala: SalaCreate,
