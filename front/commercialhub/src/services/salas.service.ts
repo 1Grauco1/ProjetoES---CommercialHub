@@ -29,6 +29,16 @@ export type Sala = {
   fotos?: FotoItem[] | string | null;
   descricao: string;
   tipo: TipoSala;
+  quartos: number;
+  banheiros: number;
+  vagas_garagem: number;
+  ar_condicionado: boolean;
+  elevador: boolean;
+  portaria: boolean;
+  mobiliada: boolean;
+  internet: boolean;
+  alarme: boolean;
+  estacionamento: boolean;
   endereco?: Endereco | null;
 };
 
@@ -41,6 +51,16 @@ export type CriarSalaPayload = {
     | "status_ocupacao"
     | "descricao"
     | "tipo"
+    | "quartos"
+    | "banheiros"
+    | "vagas_garagem"
+    | "ar_condicionado"
+    | "elevador"
+    | "portaria"
+    | "mobiliada"
+    | "internet"
+    | "alarme"
+    | "estacionamento"
   > & {
     id_proprietario: number;
     id_endereco: number;

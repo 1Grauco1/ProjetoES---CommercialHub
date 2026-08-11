@@ -1,14 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from "react"; // 
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowUp,
+  Bed,
+  Bell,
   Building2,
+  Building2Icon,
   CalendarDays,
-  MapPin,
-  Snowflake,
+  Car,
+  Home,
+  HomeIcon,
   LoaderCircle,
+  MapPin,
+  ShieldCheck,
+  ShowerHead,
+  Snowflake,
+  Wifi,
+  Wind,
 } from "lucide-react";
 import Header from "@/src/components/layout/Header";
 import { formatCurrency } from "@/src/utils/format";
@@ -17,14 +28,18 @@ import { useParams, useSearchParams } from "next/navigation";
 import { salaIdFromSlug } from "@/src/utils/slug";
 
 
-const API_URL = "http://localhost:8000"; 
+const API_URL = "http://localhost:8000";
 
 export default function AnuncioPage() {
   const { id: slug } = useParams<{ id: string }>();
   const salaId = salaIdFromSlug(slug);
   const searchParams = useSearchParams();
-  const origem = searchParams.get("from");
   
+  const slug = params?.id;
+  const salaId = salaIdFromSlug(slug);
+  const searchParams = useSearchParams();
+  const origem = searchParams.get("from");
+
   let voltarHref = "/dashboard";
   let textoVoltar = "Voltar para o dashboard";
 
@@ -38,7 +53,6 @@ export default function AnuncioPage() {
 
   const { sala, loading, error } = useSala(salaId ? String(salaId) : "0");
 
- 
   const [fotoSelecionada, setFotoSelecionada] = useState<string | null>(null);
 
   if (!salaId)
@@ -75,33 +89,41 @@ export default function AnuncioPage() {
     ? `${sala.endereco.rua}, ${sala.endereco.numero} · ${sala.endereco.cidade}, ${sala.endereco.estado}`
     : "Endereço não informado";
 
- 
+  const amenidades = [
+    { label: "Ar condicionado", enabled: sala.ar_condicionado, Icon: Wind },
+    { label: "Elevador", enabled: sala.elevador, Icon: ArrowUp },
+    { label: "Portaria", enabled: sala.portaria, Icon: ShieldCheck },
+    { label: "Mobiliada", enabled: sala.mobiliada, Icon: Home },
+    { label: "Internet", enabled: sala.internet, Icon: Wifi },
+    { label: "Alarme", enabled: sala.alarme, Icon: Bell },
+    { label: "Estacionamento", enabled: sala.estacionamento, Icon: Car },
+  ].filter((item) => item.enabled);
+
   const listaFotos: string[] = Array.isArray(sala.fotos)
-    ? sala.fotos.map((item: any) => {
-        let caminhoRelativo =
-          typeof item === "string" ? item : item?.caminho || item?.url || "";
+    ? sala.fotos
+        .map((item: any) => {
+          let caminhoRelativo =
+            typeof item === "string" ? item : item?.caminho || item?.url || "";
 
-        if (!caminhoRelativo) return "";
+          if (!caminhoRelativo) return "";
 
-        
-        if (caminhoRelativo.startsWith("http")) return caminhoRelativo;
+          if (caminhoRelativo.startsWith("http")) return caminhoRelativo;
 
-       
-        if (!caminhoRelativo.startsWith("/")) {
-          caminhoRelativo = `/${caminhoRelativo}`;
-        }
+          if (!caminhoRelativo.startsWith("/")) {
+            caminhoRelativo = `/${caminhoRelativo}`;
+          }
 
-        // 4. Retorna a URL pronta
-        return `${API_URL}${caminhoRelativo}`;
-      }).filter(Boolean) // Remove eventuais caminhos vazios
+          // 4. Retorna a URL pronta
+          return `${API_URL}${caminhoRelativo}`;
+        })
+        .filter(Boolean) // Remove eventuais caminhos vazios
     : typeof sala.fotos === "string" && sala.fotos
-    ? [
-        sala.fotos.startsWith("http")
-          ? sala.fotos
-          : `${API_URL}${sala.fotos.startsWith("/") ? sala.fotos : `/${sala.fotos}`}`,
-      ]
-    : [];
-
+      ? [
+          sala.fotos.startsWith("http")
+            ? sala.fotos
+            : `${API_URL}${sala.fotos.startsWith("/") ? sala.fotos : `/${sala.fotos}`}`,
+        ]
+      : [];
 
   const fotoExibida = fotoSelecionada || listaFotos[0];
 
@@ -116,10 +138,9 @@ export default function AnuncioPage() {
           <ArrowLeft size={17} />
           {textoVoltar}
         </Link>
-        
+
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.45fr_.75fr]">
           <div>
-           
             <div className="relative h-80 overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#1b263b,#d35400)] sm:h-110">
               {fotoExibida ? (
                 <img
@@ -132,7 +153,6 @@ export default function AnuncioPage() {
               )}
             </div>
 
-          
             {listaFotos.length > 1 && (
               <div className="mt-4 flex items-center gap-3 overflow-x-auto pb-2">
                 {listaFotos.map((urlFoto, index) => (
@@ -168,13 +188,13 @@ export default function AnuncioPage() {
               <MapPin size={18} />
               {endereco}
             </p>
-            
+
             <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold">Sobre o imóvel</h2>
               <p className="mt-4 whitespace-pre-wrap leading-7 text-[#4f5565]">
                 {sala.descricao}
               </p>
-              
+
               <h2 className="mt-8 text-xl font-bold">
                 Características da sala
               </h2>
@@ -186,12 +206,60 @@ export default function AnuncioPage() {
                   </strong>
                   <span className="text-xs text-[#737791]">Área</span>
                 </div>
+                {sala.quartos > 0 && (
+                  <div className="rounded-xl bg-[#f5f5f7] p-4">
+                    <Bed size={20} className="text-[#d35400]" />
+                    <strong className="mt-3 block text-sm">
+                      {sala.quartos}
+                    </strong>
+                    <span className="text-xs text-[#737791]">Quartos</span>
+                  </div>
+                )}
+
+                {sala.banheiros > 0 && (
+                  <div className="rounded-xl bg-[#f5f5f7] p-4">
+                    <ShowerHead size={20} className="text-[#d35400]" />
+                    <strong className="mt-3 block text-sm">
+                      {sala.banheiros}
+                    </strong>
+                    <span className="text-xs text-[#737791]">Banheiros</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {sala.vagas_garagem > 0 && (
+                  <div className="rounded-xl bg-[#f5f5f7] p-4">
+                    <Car size={20} className="text-[#d35400]" />
+                    <strong className="mt-3 block text-sm">
+                      {sala.vagas_garagem}
+                    </strong>
+                    <span className="text-xs text-[#737791]">Vagas</span>
+                  </div>
+                )}
+
                 <div className="rounded-xl bg-[#f5f5f7] p-4">
-                  <Snowflake size={20} className="text-[#d35400]" />
+                  {sala.tipo === "Residencial" ?( <HomeIcon size={20} className="text-[#d35400]" />):( <Building2Icon size={20} className="text-[#d35400]" />)}
+                 
                   <strong className="mt-3 block text-sm">{sala.tipo}</strong>
                   <span className="text-xs text-[#737791]">Tipo do imóvel</span>
                 </div>
               </div>
+              {amenidades.length > 0 && (
+                <div className="mt-6 rounded-2xl bg-[#f5f5f7] p-4">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {amenidades.map(({ label, Icon }) => (
+                      <div
+                        key={label}
+                        className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm"
+                      >
+                        <Icon size={20} className="text-[#d35400]" />
+                        <span className="text-sm text-[#374151]">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
           </div>
           <aside className="h-fit rounded-2xl bg-white p-6 shadow-[0_8px_32px_rgba(0,0,0,.14)] lg:sticky lg:top-24">
@@ -218,4 +286,4 @@ export default function AnuncioPage() {
       </main>
     </div>
   );
-} 
+}
