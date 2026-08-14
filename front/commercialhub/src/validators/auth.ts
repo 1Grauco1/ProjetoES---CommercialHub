@@ -11,7 +11,6 @@ export const registerSchema = z.object({
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
   confirmPassword: z.string(),
   phone: z.string().min(10, 'Telefone inválido'),
-  nivel_acesso: z.literal('Inquilino').or(z.literal('Proprietário')),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'As senhas não coincidem',
   path: ['confirmPassword'],

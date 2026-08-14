@@ -3,7 +3,6 @@ export type Perfil = {
   nome: string;
   email: string;
   telefone?: string | null;
-  tipoConta?: string | null;
   foto?: string | null;
 };
 
@@ -11,7 +10,6 @@ export type AtualizarPerfil = {
   nomeCompleto?: string;
   email?: string;
   telefone?: string;
-  tipoConta?: string;
 };
 
 const API_URL =
@@ -86,15 +84,6 @@ export async function atualizarPerfil(
    * O backend ainda não aceita foto.
    * Quando a API estiver pronta, a implementação poderá
    * ser adicionada aqui sem alterar a página de edição.
-   */
-
-  /*
-   * TIPO DE CONTA
-   *
-   * O backend atual de Pessoa não possui esse campo
-   * na atualização. Mantemos o campo no frontend para
-   * compatibilidade, mas não o enviamos enquanto a API
-   * não estiver preparada para recebê-lo.
    */
 
   return request<Perfil>(`/usuario/editar/${idPessoa}`, {

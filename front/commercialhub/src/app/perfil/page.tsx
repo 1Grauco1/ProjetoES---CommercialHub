@@ -19,7 +19,6 @@ export default function PerfilPage() {
   }
 
   const dados = perfil as typeof perfil & {
-    tipoConta?: string;
     foto?: string | null;
   };
 
@@ -53,9 +52,6 @@ export default function PerfilPage() {
 
             <div className="text-center sm:text-left">
               <h2 className="text-2xl font-bold">{perfil.nome}</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {dados.tipoConta || 'Usuário'}
-              </p>
             </div>
           </div>
 
@@ -63,7 +59,6 @@ export default function PerfilPage() {
             <Info icon={<User size={18} />} label="Nome completo" value={perfil.nome} />
             <Info icon={<Mail size={18} />} label="E-mail" value={perfil.email} />
             <Info icon={<Phone size={18} />} label="Telefone" value={perfil.telefone || 'Não informado'} />
-            <Info icon={<User size={18} />} label="Tipo de conta" value={dados.tipoConta || 'Não informado'} />
           </div>
         </section>
       </div>
