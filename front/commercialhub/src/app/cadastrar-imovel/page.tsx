@@ -173,7 +173,6 @@ export default function CadastrarImovelPage() {
       await criarSala(
         {
           dados_sala: {
-            id_proprietario: 0,
             id_endereco: 0,
             titulo: values.titulo,
             descricao: values.descricao,
