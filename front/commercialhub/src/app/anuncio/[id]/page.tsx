@@ -21,18 +21,31 @@ import {
   Wifi,
   Wind,
 } from "lucide-react";
-import Header from "@/src/components/layout/Header";
-import { formatCurrency } from "@/src/utils/format";
-import { useSala } from "@/src/hooks/use-salas";
-import { useParams, useSearchParams } from "next/navigation";
+import { formatCurrency } from "@/src/utils/format";import { useSala } from "@/src/hooks/use-salas";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { salaIdFromSlug } from "@/src/utils/slug";
 
 
 const API_URL = "http://localhost:8000";
 
+function numeroWhatsApp(numero?: string | null): string | null {
+  if (!numero) return null;
+
+  const digitos = numero.replace(/\D/g, "").replace(/^0+/, "");
+
+  if (!digitos) return null;
+
+  if (digitos.length >= 12 && digitos.startsWith("55")) return digitos;
+
+  if (digitos.length >= 10 && digitos.length <= 11) return `55${digitos}`;
+
+  return digitos;
+}
+
 function AnuncioContent() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   const slug = params?.id;
   const salaId = salaIdFromSlug(slug);
@@ -56,18 +69,15 @@ function AnuncioContent() {
   if (!salaId)
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
-        <Header />
         <p className="mx-auto max-w-7xl px-5 py-10 font-semibold text-red-700">
           Link de anúncio inválido.
         </p>
       </div>
     );
-  }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
-        <Header />
         <p className="mx-auto max-w-7xl px-5 py-10 text-[#737791]">
           Carregando anúncio...
         </p>
@@ -78,7 +88,6 @@ function AnuncioContent() {
   if (error || !sala) {
     return (
       <div className="min-h-screen bg-[#f5f5f5]">
-        <Header />
         <p className="mx-auto max-w-7xl px-5 py-10 font-semibold text-red-700">
           {error ?? "Anúncio não encontrado."}
         </p>
@@ -128,9 +137,41 @@ function AnuncioContent() {
 
   const fotoExibida = fotoSelecionada || listaFotos[0];
 
+  const redirecionarWhatsApp = (tipo: "alugar" | "visita") => {
+    if (typeof window === "undefined") return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push(`/login?redirect=${encodeURIComponent(`/anuncio/${slug}`)}`);
+      return;
+    }
+
+    const numero = numeroWhatsApp(sala.proprietario_whatsapp);
+
+    if (!numero) {
+      window.alert(
+        "O proprietário desta sala ainda não cadastrou um WhatsApp.",
+      );
+      return;
+    }
+
+    const mensagem =
+      tipo === "alugar"
+        ? `Olá! Tenho interesse em alugar a sala "${sala.titulo}" por ${formatCurrency(
+            sala.preco,
+          )}/mês, anunciada no CommercialHub. Pode me passar mais informações?`
+        : `Olá! Gostaria de agendar uma visita à sala "${sala.titulo}", anunciada no CommercialHub.`;
+
+    window.open(
+      `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#f5f5f5] text-[#1b263b]">
-      <Header />
       <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
         <Link
           href={voltarHref}
@@ -270,6 +311,7 @@ function AnuncioContent() {
             </p>
             <hr className="my-6 border-[#ececec]" />
             <button
+              onClick={() => redirecionarWhatsApp("alugar")}
               disabled={sala.status_ocupacao !== "Disponível"}
               className="w-full rounded-xl bg-[#d35400] px-4 py-3.5 font-semibold text-white transition-colors hover:bg-[#b04600] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#d35400]"
             >
@@ -277,7 +319,10 @@ function AnuncioContent() {
                 ? "Quero alugar esta sala"
                 : "Sala indisponível"}
             </button>
-            <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d35400] px-4 py-3 font-semibold text-[#d35400] transition-colors hover:bg-[#fff4ed]">
+            <button
+              onClick={() => redirecionarWhatsApp("visita")}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#d35400] px-4 py-3 font-semibold text-[#d35400] transition-colors hover:bg-[#fff4ed]"
+            >
               <CalendarDays size={18} />
               Agendar visita gratuita
             </button>
