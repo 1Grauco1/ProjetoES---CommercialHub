@@ -13,12 +13,11 @@ import {
   Building2, 
   ArrowLeft 
 } from "lucide-react"; 
-import Header from "@/src/components/layout/Header";
-import { useSalas } from "@/src/hooks/use-salas";
+import { useSalasPublicas } from "@/src/hooks/use-salas";
 import { salaSlug } from "@/src/utils/slug";
 import { formatCurrency } from "@/src/utils/format";
 
-type Filter = "Todas" | "Disponível" | "Alugada" | "Reservada" | "Manutenção";
+type FotoItem = string | { id?: number; url: string };
 
 interface SalaEndereco {
   rua?: string;
@@ -37,9 +36,26 @@ interface Sala {
   tamanho?: number;
   preco?: number;
   status_ocupacao?: string;
-  fotos?: string | null;
-  endereco?: SalaEndereco;
+  fotos?: FotoItem[] | string | null;
+  endereco?: SalaEndereco | null;
+  ar_condicionado?: boolean;
+  elevador?: boolean;
+  portaria?: boolean;
+  mobiliada?: boolean;
+  internet?: boolean;
+  alarme?: boolean;
+  estacionamento?: boolean;
 }
+
+const CARACTERISTICAS = [
+  { key: "ar_condicionado", label: "Ar condicionado" },
+  { key: "elevador", label: "Elevador" },
+  { key: "portaria", label: "Portaria" },
+  { key: "mobiliada", label: "Mobiliada" },
+  { key: "internet", label: "Internet" },
+  { key: "alarme", label: "Alarme" },
+  { key: "estacionamento", label: "Estacionamento" },
+] as const;
 
 const STATUS_BADGE: Record<string, { bg: string; text: string; label: string }> = {
   "Disponível": { bg: "bg-emerald-100", text: "text-emerald-700", label: "Disponível" },
@@ -70,7 +86,20 @@ function RoomCard({ sala }: { sala: Sala }) {
     <div className="relative flex flex-col overflow-hidden rounded-2xl border border-[#e8e8e8] bg-white shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)]">
       <div className="relative h-40 shrink-0 overflow-hidden bg-slate-800 flex items-center justify-center">
         {sala.fotos ? (
-          <img src={sala.fotos} alt={tituloSeguro} className="absolute inset-0 h-full w-full object-cover" />
+          typeof sala.fotos === 'string' ? (
+            <img src={sala.fotos} alt={tituloSeguro} className="absolute inset-0 h-full w-full object-cover" />
+          ) : Array.isArray(sala.fotos) && sala.fotos.length > 0 ? (
+            <img 
+              src={typeof sala.fotos[0] === 'string' ? sala.fotos[0] : sala.fotos[0]?.url} 
+              alt={tituloSeguro} 
+              className="absolute inset-0 h-full w-full object-cover" 
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-1 text-slate-400">
+              <Building2 size={36} />
+              <span className="text-[10px] font-medium uppercase tracking-wider">Espaço Comercial</span>
+            </div>
+          )
         ) : (
           <div className="flex flex-col items-center justify-center gap-1 text-slate-400">
             <Building2 size={36} />
@@ -124,7 +153,7 @@ function RoomCard({ sala }: { sala: Sala }) {
           </div>
           {available ? (
             <Link 
-              href={sala.id ? `/anuncio/${salaSlug(tituloSeguro, sala.id)}?from=busca` : "#"}
+              href={sala.id ? `/anuncio/${salaSlug(tituloSeguro, Number(sala.id))}?from=busca` : "#"}
               className="flex h-8 items-center justify-center rounded-[10px] bg-[#d35400] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#b84800]"
             >
               Ver Detalhes
@@ -144,11 +173,15 @@ function BuscaSalaPageContent() {
   const searchParams = useSearchParams();
   const termoInicial = searchParams?.get("q") || "";
   
-  const { salas, loading, error } = useSalas();
+  const { salas, loading, error } = useSalasPublicas();
 
-  const [activeFilter, setActiveFilter] = useState<Filter>("Todas");
   const [searchName, setSearchName] = useState(termoInicial);
   const [searchLocation, setSearchLocation] = useState("");
+  const [precoMin, setPrecoMin] = useState("");
+  const [precoMax, setPrecoMax] = useState("");
+  const [tamanhoMin, setTamanhoMin] = useState("");
+  const [tamanhoMax, setTamanhoMax] = useState("");
+  const [selectedChars, setSelectedChars] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("Relevância");
   const [showSort, setShowSort] = useState(false);
 
@@ -156,9 +189,13 @@ function BuscaSalaPageContent() {
     if (termoInicial) setSearchName(termoInicial);
   }, [termoInicial]);
 
+  const toggleChar = (key: string) => {
+    setSelectedChars((prev) =>
+      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
+    );
+  };
+
   const filtered = (salas || []).filter((s) => {
-    const matchFilter = activeFilter === "Todas" || s.status_ocupacao === activeFilter;
-    
     const tituloValido = s.titulo || "";
     const tipoValido = s.tipo || "";
     
@@ -172,8 +209,27 @@ function BuscaSalaPageContent() {
       (s.endereco.cidade?.toLowerCase().includes(locLower)) ||
       (s.endereco.estado?.toLowerCase().includes(locLower))
     ));
-    
-    return matchFilter && matchName && matchLoc;
+
+    const preco = s.preco || 0;
+    const precoMinNum = precoMin === "" ? null : Number(precoMin);
+    const precoMaxNum = precoMax === "" ? null : Number(precoMax);
+    const matchPreco =
+      (precoMinNum === null || preco >= precoMinNum) &&
+      (precoMaxNum === null || preco <= precoMaxNum);
+
+    const tamanho = s.tamanho || 0;
+    const tamanhoMinNum = tamanhoMin === "" ? null : Number(tamanhoMin);
+    const tamanhoMaxNum = tamanhoMax === "" ? null : Number(tamanhoMax);
+    const matchTamanho =
+      (tamanhoMinNum === null || tamanho >= tamanhoMinNum) &&
+      (tamanhoMaxNum === null || tamanho <= tamanhoMaxNum);
+
+    const salaRecord = s as Record<string, unknown>;
+    const matchChars = selectedChars.every(
+      (c) => salaRecord[c] === true
+    );
+
+    return matchName && matchLoc && matchPreco && matchTamanho && matchChars;
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -189,9 +245,8 @@ function BuscaSalaPageContent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f5f5f5] text-[#1b263b]">
-      <Header />
 
-      <div className="relative shrink-0 bg-[#1b263b] z-10">
+      <div className="relative hidden shrink-0 bg-[#1b263b] z-10">
         <Link
           href="/dashboard"
           className="absolute left-5 top-6 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/25 shadow-sm"
@@ -240,45 +295,95 @@ function BuscaSalaPageContent() {
       </div>
 
       <div className="relative shrink-0 border-b border-[#ececec] bg-white z-30">
-        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-5 lg:px-8">
-          <div className="flex flex-1 items-center gap-3 overflow-x-auto pr-4">
-            {(["Todas", "Disponível", "Alugada", "Manutenção"] as Filter[]).map((f) => (
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-5 py-3 lg:px-8">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#737791]">Preço</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Mín."
+                value={precoMin}
+                onChange={(e) => setPrecoMin(e.target.value)}
+                className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
+              />
+              <span className="text-xs text-[#737791]">a</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Máx."
+                value={precoMax}
+                onChange={(e) => setPrecoMax(e.target.value)}
+                className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
+              />
+              <span className="text-xs text-[#737791]">R$/mês</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#737791]">Tamanho</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Mín."
+                value={tamanhoMin}
+                onChange={(e) => setTamanhoMin(e.target.value)}
+                className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
+              />
+              <span className="text-xs text-[#737791]">a</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Máx."
+                value={tamanhoMax}
+                onChange={(e) => setTamanhoMax(e.target.value)}
+                className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
+              />
+              <span className="text-xs text-[#737791]">m²</span>
+            </div>
+
+            <div className="relative ml-auto shrink-0">
               <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`h-8 shrink-0 rounded-full border px-[17px] py-px text-[13px] font-medium leading-[19.5px] whitespace-nowrap transition-colors ${
-                  activeFilter === f
-                    ? "border-[#d35400] bg-[#d35400] text-white"
-                    : "border-[#d9d9d9] bg-white text-[#333] hover:border-[#d35400] hover:text-[#d35400]"
-                }`}
+                onClick={() => setShowSort(!showSort)}
+                className="flex h-8 w-[147px] items-center justify-between rounded-full border border-[#d9d9d9] bg-white px-[17px] py-px transition-colors hover:border-[#d35400]"
               >
-                {f}
+                <span className="truncate text-[13px] font-medium text-black">{sortBy}</span>
+                <ChevronDown size={14} className="shrink-0 text-[#333]" />
               </button>
-            ))}
+              
+              {showSort && (
+                <div className="absolute right-0 top-10 z-50 min-w-[147px] overflow-hidden rounded-xl border border-[#d9d9d9] bg-white py-1 shadow-lg">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => { setSortBy(opt); setShowSort(false); }}
+                      className={`w-full px-4 py-2 text-left text-[13px] transition-colors hover:bg-[#f5f5f7] ${opt === sortBy ? "font-semibold text-[#d35400]" : "text-[#333]"}`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="relative ml-2 shrink-0">
-            <button
-              onClick={() => setShowSort(!showSort)}
-              className="flex h-8 w-[147px] items-center justify-between rounded-full border border-[#d9d9d9] bg-white px-[17px] py-px transition-colors hover:border-[#d35400]"
-            >
-              <span className="truncate text-[13px] font-medium text-black">{sortBy}</span>
-              <ChevronDown size={14} className="shrink-0 text-[#333]" />
-            </button>
-            
-            {showSort && (
-              <div className="absolute right-0 top-10 z-50 min-w-[147px] overflow-hidden rounded-xl border border-[#d9d9d9] bg-white py-1 shadow-lg">
-                {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => { setSortBy(opt); setShowSort(false); }}
-                    className={`w-full px-4 py-2 text-left text-[13px] transition-colors hover:bg-[#f5f5f7] ${opt === sortBy ? "font-semibold text-[#d35400]" : "text-[#333]"}`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-[#737791]">Características</span>
+            {CARACTERISTICAS.map(({ key, label }) => {
+              const ativa = selectedChars.includes(key);
+              return (
+                <button
+                  key={key}
+                  onClick={() => toggleChar(key)}
+                  className={`h-8 shrink-0 rounded-full border px-[15px] py-px text-xs font-medium leading-[19.5px] whitespace-nowrap transition-colors ${
+                    ativa
+                      ? "border-[#d35400] bg-[#d35400] text-white"
+                      : "border-[#d9d9d9] bg-white text-[#333] hover:border-[#d35400] hover:text-[#d35400]"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
