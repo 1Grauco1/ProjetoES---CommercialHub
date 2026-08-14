@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { normalizarFotos } from '@/src/lib/sala-response';
+import { normalizarFotos } from '@/src/utils/media';
 
 const backendUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
 

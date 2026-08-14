@@ -1,15 +1,8 @@
-from enum import Enum
-
 from app.models.base import Base
-from sqlalchemy import Enum as SQLEnum
+from app.models.contrato import Contrato
+from app.models.sala import Sala
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-
-class NivelAcesso(Enum):
-    ADMIN = "Administrador"
-    PROPRIETARIO = "Proprietário"
-    INQUILINO = "Inquilino"
 
 
 class Usuario(Base):
@@ -23,6 +16,10 @@ class Usuario(Base):
 
     senha: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    nivel_acesso: Mapped[NivelAcesso] = mapped_column(SQLEnum(NivelAcesso))
-
     pessoa = relationship("Pessoa", back_populates="usuario")
+
+    salas: Mapped[list["Sala"]] = relationship("Sala", back_populates="usuario")
+
+    contratos: Mapped[list["Contrato"]] = relationship(
+        "Contrato", back_populates="usuario"
+    )

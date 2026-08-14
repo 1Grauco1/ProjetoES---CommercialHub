@@ -1,6 +1,9 @@
 import os
 import uuid
+from pathlib import Path
 from fastapi import UploadFile, HTTPException
+
+UPLOADS_DIR = Path(__file__).resolve().parent.parent.parent / "uploads"
 
 TIPOS_PERMITIDOS = [
     "image/jpeg",
@@ -30,26 +33,20 @@ async def salvar_imagem(foto: UploadFile) -> str:
         )
 
     # Garante que a pasta exista
-    os.makedirs("uploads", exist_ok=True)
-    
+    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
     if not foto.filename:
         raise HTTPException(
-            status_code= 400, detail = "Arquivo inexistente.4"
+            status_code=400, detail="Arquivo inexistente."
         )
 
-    
     extensao = os.path.splitext(foto.filename)[1].lower()
 
-    
     nome_arquivo = f"{uuid.uuid4()}{extensao}"
 
-    
-    caminho = os.path.join("uploads", nome_arquivo)
+    caminho = UPLOADS_DIR / nome_arquivo
 
-    
     with open(caminho, "wb") as arquivo:
         arquivo.write(conteudo)
-        
 
-
-    return caminho
+    return f"uploads/{nome_arquivo}"
