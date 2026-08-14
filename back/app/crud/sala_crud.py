@@ -103,8 +103,6 @@ def listar_salas_preco_limite(db: Session, preco_limite: float):
     return db.query(Sala).filter(Sala.preco <= preco_limite).all()
 
 
-def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch):
-
 def editar_sala(
     db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch
 ) -> Sala | None:
