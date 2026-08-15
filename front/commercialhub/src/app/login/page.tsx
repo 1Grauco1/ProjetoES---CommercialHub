@@ -6,9 +6,9 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
+import { signIn } from 'next-auth/react';
 import { loginSchema } from '@/src/validators/auth';
 import type { LoginFormValues } from '@/src/types/auth';
-import { authService } from '@/src/services/auth.service';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -30,13 +30,14 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         try {
-            const response = await authService.login({
+            const result = await signIn('credentials', {
                 username: values.email,
                 password: values.password,
+                redirect: false,
             });
-            const token = response.access_token ?? response.token;
-            if (!token) throw new Error('A API não retornou um token de acesso.');
-            localStorage.setItem('token', token);
+
+            if (result?.error) throw new Error('Credenciais inválidas');
+
             const redirect =
               new URLSearchParams(window.location.search).get('redirect') ||
               '/dashboard';
