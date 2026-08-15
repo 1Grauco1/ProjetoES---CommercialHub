@@ -16,6 +16,7 @@ import {
 import { useSalasPublicas } from "@/src/hooks/use-salas";
 import { salaSlug } from "@/src/utils/slug";
 import { formatCurrency } from "@/src/utils/format";
+import { useSession } from "next-auth/react";
 
 type FotoItem = string | { id?: number; url: string };
 
@@ -35,6 +36,8 @@ interface Sala {
   tipo?: string;
   tamanho?: number;
   preco?: number;
+  quartos?: number;
+  banheiros?: number;
   status_ocupacao?: string;
   fotos?: FotoItem[] | string | null;
   endereco?: SalaEndereco | null;
@@ -171,6 +174,8 @@ function RoomCard({ sala }: { sala: Sala }) {
 
 function BuscaSalaPageContent() {
   const searchParams = useSearchParams();
+  const {data:session,status} =useSession();
+  const isloggedIn = status === "authenticated"
   const termoInicial = searchParams?.get("q") || "";
   
   const { salas, loading, error } = useSalasPublicas();
@@ -181,6 +186,8 @@ function BuscaSalaPageContent() {
   const [precoMax, setPrecoMax] = useState("");
   const [tamanhoMin, setTamanhoMin] = useState("");
   const [tamanhoMax, setTamanhoMax] = useState("");
+  const [quartosMin, setQuartosMin] = useState("");
+  const [banheirosMin, setBanheirosMin] = useState("");
   const [selectedChars, setSelectedChars] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("Relevância");
   const [showSort, setShowSort] = useState(false);
@@ -224,12 +231,28 @@ function BuscaSalaPageContent() {
       (tamanhoMinNum === null || tamanho >= tamanhoMinNum) &&
       (tamanhoMaxNum === null || tamanho <= tamanhoMaxNum);
 
+    const quartos = s.quartos || 0;
+    const quartosMinNum = quartosMin === "" ? null : Number(quartosMin);
+    const matchQuartos = quartosMinNum === null || quartos >= quartosMinNum;
+
+    const banheiros = s.banheiros || 0;
+    const banheirosMinNum = banheirosMin === "" ? null : Number(banheirosMin);
+    const matchBanheiros = banheirosMinNum === null || banheiros >= banheirosMinNum;
+
     const salaRecord = s as Record<string, unknown>;
     const matchChars = selectedChars.every(
       (c) => salaRecord[c] === true
     );
 
-    return matchName && matchLoc && matchPreco && matchTamanho && matchChars;
+    return (
+      matchName &&
+      matchLoc &&
+      matchPreco &&
+      matchTamanho &&
+      matchQuartos &&
+      matchBanheiros &&
+      matchChars
+    );
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -246,15 +269,16 @@ function BuscaSalaPageContent() {
   return (
     <div className="flex min-h-screen flex-col bg-[#f5f5f5] text-[#1b263b]">
 
-      <div className="relative hidden shrink-0 bg-[#1b263b] z-10">
-        <Link
+      <div className="relative shrink-0 bg-[#1b263b] z-10">
+        {isloggedIn?( <Link
           href="/dashboard"
           className="absolute left-5 top-6 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/25 shadow-sm"
         >
           <ArrowLeft size={16} />
           Voltar ao dashboard
         </Link>
-
+):(<div className="hidden"></div>)}
+       
         <div className="absolute -top-24 right-[180px] size-72 rounded-full bg-[#d35400] opacity-10 pointer-events-none" />
         <div className="absolute left-32 top-16 size-48 rounded-full bg-[#d35400] opacity-7 pointer-events-none" />
 
@@ -339,6 +363,32 @@ function BuscaSalaPageContent() {
                 className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
               />
               <span className="text-xs text-[#737791]">m²</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#737791]">Quartos</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Mín."
+                value={quartosMin}
+                onChange={(e) => setQuartosMin(e.target.value)}
+                className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
+              />
+              <span className="text-xs text-[#737791]">+</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#737791]">Banheiros</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Mín."
+                value={banheirosMin}
+                onChange={(e) => setBanheirosMin(e.target.value)}
+                className="h-8 w-20 rounded-lg border border-[#d9d9d9] bg-white px-2 text-sm text-[#333] outline-none transition-colors focus:border-[#d35400]"
+              />
+              <span className="text-xs text-[#737791]">+</span>
             </div>
 
             <div className="relative ml-auto shrink-0">
