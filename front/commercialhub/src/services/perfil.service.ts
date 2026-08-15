@@ -26,7 +26,7 @@ async function request<T>(
 
   const text = await response.text();
 
-  let data: any = null;
+  let data: unknown = null;
 
   try {
     data = text ? JSON.parse(text) : null;
@@ -35,9 +35,15 @@ async function request<T>(
   }
 
   if (!response.ok) {
+    const erro =
+      typeof data === "string"
+        ? data
+        : (data as { detail?: string; message?: string } | null);
+    const mensagem =
+      typeof erro === "string" ? erro : erro?.detail ?? erro?.message;
+
     throw new Error(
-      data?.detail ??
-        data?.message ??
+      mensagem ??
         `Erro ${response.status}: não foi possível realizar a operação.`
     );
   }

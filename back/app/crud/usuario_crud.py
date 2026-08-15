@@ -1,8 +1,9 @@
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.core.security import gerar_hash
 from app.models.usuario import Usuario
 from app.schemas import usuario_schemas
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 
 def criar_usuario(

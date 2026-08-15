@@ -42,6 +42,25 @@ const schema = z.object({
 
 type FormValues = z.input<typeof schema>;
 
+type CampoImagem =
+  | 'ar_condicionado'
+  | 'elevador'
+  | 'portaria'
+  | 'mobiliada'
+  | 'internet'
+  | 'alarme'
+  | 'estacionamento';
+
+const CAMPOS_IMAGEM: Array<{ field: CampoImagem; label: string }> = [
+  { field: 'ar_condicionado', label: 'Ar condicionado' },
+  { field: 'elevador', label: 'Elevador' },
+  { field: 'portaria', label: 'Portaria' },
+  { field: 'mobiliada', label: 'Mobiliada' },
+  { field: 'internet', label: 'Internet' },
+  { field: 'alarme', label: 'Alarme' },
+  { field: 'estacionamento', label: 'Estacionamento' },
+];
+
 const inputStyle =
   'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#D35400] focus:ring-4 focus:ring-orange-100 disabled:bg-slate-100 disabled:cursor-not-allowed';
 
@@ -87,10 +106,10 @@ export default function CadastrarImovelPage() {
     setMessage(null);
 
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${rawCep}/json/`);
+      const response = await fetch(`/api/cep/${rawCep}`);
       const data = await response.json();
 
-      if (data.erro) {
+      if (!response.ok || data.erro) {
         setMessage('CEP não encontrado.');
         return;
       }
@@ -173,7 +192,6 @@ export default function CadastrarImovelPage() {
       await criarSala(
         {
           dados_sala: {
-            id_endereco: 0,
             titulo: values.titulo,
             descricao: values.descricao,
             tipo: values.tipo,
@@ -190,7 +208,6 @@ export default function CadastrarImovelPage() {
             internet: values.internet === 'true',
             alarme: values.alarme === 'true',
             estacionamento: values.estacionamento === 'true',
-            fotos: null,
           },
           dados_endereco: {
             rua: values.rua,
@@ -554,15 +571,7 @@ export default function CadastrarImovelPage() {
             </div>
 
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { field: 'ar_condicionado', label: 'Ar condicionado' },
-                { field: 'elevador', label: 'Elevador' },
-                { field: 'portaria', label: 'Portaria' },
-                { field: 'mobiliada', label: 'Mobiliada' },
-                { field: 'internet', label: 'Internet' },
-                { field: 'alarme', label: 'Alarme' },
-                { field: 'estacionamento', label: 'Estacionamento' },
-              ].map((feature) => (
+              {CAMPOS_IMAGEM.map((feature) => (
                 <fieldset
                   key={feature.field}
                   className="rounded-3xl border border-slate-200 p-4"
@@ -576,7 +585,7 @@ export default function CadastrarImovelPage() {
                       <input
                         type="radio"
                         value="true"
-                        {...register(feature.field as any)}
+                        {...register(feature.field)}
                       />
                       Sim
                     </label>
@@ -584,7 +593,7 @@ export default function CadastrarImovelPage() {
                       <input
                         type="radio"
                         value="false"
-                        {...register(feature.field as any)}
+                        {...register(feature.field)}
                       />
                       Não
                     </label>

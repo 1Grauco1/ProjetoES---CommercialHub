@@ -4,6 +4,8 @@ from app.models.foto import Foto
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.models.foto import Foto
+
 
 def adicionarFoto(db: Session, id_sala: int, caminho: str) -> None:
     foto = Foto(id_sala=id_sala, caminho=caminho)

@@ -3,6 +3,7 @@
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import PageHeader from "@/src/components/dashboard/PageHeader";
 import { useSalas } from "@/src/hooks/use-salas";
+import { deletarSala } from "@/src/services/salas.service";
 import {
   Building2,
   CalendarCheck,
@@ -10,6 +11,7 @@ import {
   TrendingUp,
   WalletCards,
 } from "lucide-react";
+import { useState } from "react";
 
 const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -17,11 +19,39 @@ const money = new Intl.NumberFormat("pt-BR", {
 });
 export default function DashboardPage() {
   const { salas, loading, error } = useSalas();
-  const rented = salas.filter((sala) => sala.status_ocupacao === "Alugada");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletedIds, setDeletedIds] = useState<number[]>([]);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const visibleSalas = salas.filter((sala) => !deletedIds.includes(sala.id));
+  const rented = visibleSalas.filter((sala) => sala.status_ocupacao === "Alugada");
   const monthlyRevenue = rented.reduce((total, sala) => total + sala.preco, 0);
-  const occupancy = salas.length
-    ? Math.round((rented.length / salas.length) * 100)
+  const occupancy = visibleSalas.length
+    ? Math.round((rented.length / visibleSalas.length) * 100)
     : 0;
+  const excluirSala = async (id: number) => {
+    if (
+      !window.confirm(
+        "Deseja excluir este imóvel? Esta ação não pode ser desfeita.",
+      )
+    )
+      return;
+
+    setActionError(null);
+    setDeletingId(id);
+    try {
+      await deletarSala(id);
+      setDeletedIds((current) => [...current, id]);
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível excluir a sala.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
   const cards = [
     {
       label: "Receita mensal",
@@ -31,8 +61,8 @@ export default function DashboardPage() {
     },
     {
       label: "Imóveis cadastrados",
-      value: String(salas.length),
-      note: `${salas.filter((sala) => sala.status_ocupacao === "Disponível").length} disponíveis para locação`,
+      value: String(visibleSalas.length),
+      note: `${visibleSalas.filter((sala) => sala.status_ocupacao === "Disponível").length} disponíveis para locação`,
       icon: Building2,
     },
     {
@@ -44,7 +74,7 @@ export default function DashboardPage() {
     {
       label: "Taxa de ocupação",
       value: `${occupancy}%`,
-      note: `${salas.length} imóveis no total`,
+      note: `${visibleSalas.length} imóveis no total`,
       icon: TrendingUp,
     },
   ];
@@ -90,11 +120,11 @@ export default function DashboardPage() {
               {(
                 ["Disponível", "Reservada", "Alugada", "Manutenção"] as const
               ).map((status) => {
-                const count = salas.filter(
+                const count = visibleSalas.filter(
                   (sala) => sala.status_ocupacao === status,
                 ).length;
-                const height = salas.length
-                  ? Math.max((count / salas.length) * 100, count ? 12 : 0)
+                const height = visibleSalas.length
+                  ? Math.max((count / visibleSalas.length) * 100, count ? 12 : 0)
                   : 0;
                 return (
                   <div
@@ -116,29 +146,44 @@ export default function DashboardPage() {
           </article>
           <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <h2 className="font-bold">Últimos imóveis</h2>
-            {salas.length === 0 && !loading ? (
+            {actionError && (
+              <p className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                {actionError}
+              </p>
+            )}
+            {visibleSalas.length === 0 && !loading ? (
               <p className="mt-5 text-sm text-slate-500">
                 Nenhum imóvel cadastrado.
               </p>
             ) : (
-              salas
+              visibleSalas
                 .slice(-3)
                 .reverse()
                 .map((sala) => (
                   <div
                     key={sala.id}
-                    className="flex gap-3 border-b border-slate-100 py-5 last:border-0"
+                    className="flex items-center justify-between gap-3 border-b border-slate-100 py-5 last:border-0"
                   >
-                    <span className="mt-1 size-2 rounded-full bg-[#D35400]" />
-                    <div>
-                      <p className="text-sm font-medium">
-                        Sala comercial #{sala.id}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        {sala.tamanho} m² · {money.format(sala.preco)}/mês
-                      </p>
-                      <button><Trash className="text-red-600" size={16} /></button>
+                    <div className="flex items-center gap-3">
+                      <span className="size-2 rounded-full bg-[#D35400]" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          Sala comercial #{sala.id}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          {sala.tamanho} m² · {money.format(sala.preco)}/mês
+                        </p>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => excluirSala(sala.id)}
+                      disabled={deletingId === sala.id}
+                      aria-label={`Excluir sala ${sala.id}`}
+                      className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Trash size={16} />
+                    </button>
                   </div>
                 ))
             )}

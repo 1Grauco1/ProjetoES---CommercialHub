@@ -29,9 +29,11 @@ export default function EditarPerfilPage() {
   useEffect(() => {
     if (!perfil) return;
 
-    setNome(perfil.nome ?? '');
-    setEmail(perfil.email ?? '');
-    setTelefone(perfil.telefone ?? '');
+    queueMicrotask(() => {
+      setNome(perfil.nome ?? '');
+      setEmail(perfil.email ?? '');
+      setTelefone(perfil.telefone ?? '');
+    });
   }, [perfil]);
 
   const salvar = async (event: React.FormEvent) => {

@@ -1,10 +1,10 @@
 from enum import Enum
 
-from app.models.base import Base
-from sqlalchemy import Date
+from sqlalchemy import Date, Float, ForeignKey
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import Float, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base
 
 
 class StatusContrato(Enum):

@@ -1,7 +1,8 @@
-from app.models.pessoa import Pessoa
-from app.schemas import pessoa_schemas, usuario_schemas
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+from app.models.pessoa import Pessoa
+from app.schemas import pessoa_schemas, usuario_schemas
 
 
 def criar_pessoa(db: Session, dados_pessoa: usuario_schemas.CadastroUsuario) -> Pessoa:
@@ -13,10 +14,6 @@ def criar_pessoa(db: Session, dados_pessoa: usuario_schemas.CadastroUsuario) -> 
     db.flush()
 
     return pessoa
-
-
-def listar_pessoa(db: Session) -> list[Pessoa]:
-    return list(db.scalars(select(Pessoa)))
 
 
 def buscar_pessoa(db: Session, id_pessoa: int) -> Pessoa | None:

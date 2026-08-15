@@ -1,16 +1,22 @@
 from datetime import date
-from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.contrato import StatusContrato
-from pydantic import BaseModel, ConfigDict
 
 
 class ContratoCreate(BaseModel):
     id_sala: int
     data_inicio: date
     data_termino: date
-    valor: float
+    valor: float = Field(ge=0)
     status: StatusContrato
+
+    @model_validator(mode="after")
+    def validar_datas(self):
+        if self.data_termino <= self.data_inicio:
+            raise ValueError("data_termino deve ser maior que data_inicio")
+        return self
 
 
 class ContratoResponse(BaseModel):
@@ -26,7 +32,7 @@ class ContratoResponse(BaseModel):
 
 
 class ContratoUpdate(BaseModel):
-    data_inicio: Optional[date] = None
-    data_termino: Optional[date] = None
-    valor: Optional[float] = None
-    status: Optional[StatusContrato] = None
+    data_inicio: date | None = None
+    data_termino: date | None = None
+    valor: float | None = None
+    status: StatusContrato | None = None

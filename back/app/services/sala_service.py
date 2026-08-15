@@ -70,6 +70,7 @@ async def adicionar_foto(
     foto: UploadFile,
     id_usuario: int,
 ) -> Sala:
+    caminhos_salvos: list[str] = []
     try:
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
@@ -80,9 +81,11 @@ async def adicionar_foto(
             raise HTTPException(
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )
-        caminho = await salvar_imagem(foto)
 
-        foto_crud.adicionarFoto(db, id_sala, caminho)
+        for foto in fotos:
+            caminho = await salvar_imagem(foto)
+            caminhos_salvos.append(caminho)
+            foto_crud.adicionarFoto(db, id_sala, caminho)
 
         db.commit()
         db.refresh(sala)
@@ -90,11 +93,18 @@ async def adicionar_foto(
         return sala
 
     except HTTPException:
+        _limpar_arquivos_orfãos(caminhos_salvos)
         db.rollback()
         raise
     except Exception:
+        _limpar_arquivos_orfãos(caminhos_salvos)
         db.rollback()
         raise
+
+
+def _limpar_arquivos_orfãos(caminhos: list[str]) -> None:
+    for caminho in caminhos:
+        remover_imagem(caminho)
 
 
 async def remover_foto(
@@ -156,7 +166,7 @@ def remover_sala(db: Session, id_sala: int, id_usuario: int) -> dict:
         raise
 
 
-def buscar_salas(db: Session, dados_sala: sala_schemas.SalaFilterSearch):
+def buscar_salas(db: Session, dados_sala: sala_schemas.SalaFilterSearch) -> list[Sala]:
     try:
         return sala_crud.buscar_salas_filtros(db, dados_sala)
     except Exception:

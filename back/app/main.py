@@ -1,12 +1,8 @@
-import os
 from pathlib import Path
 
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
-load_dotenv()
 
 from app.routers import auth, cep, contratos, pessoas, salas
 
@@ -28,7 +24,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Libera POST, GET, DELETE, PUT, etc.
     allow_headers=["*"],  # Libera os cabeçalhos como Authorization e Content-Type
-    allow_private_network=True,  # Necessário p/ Brave/Chrome ao acessar API em 127.0.0.1
+    allow_private_network=True,  # p/ Brave/Chrome ao acessar API em 127.0.0.1
 )
 
 # Seus roteadores existentes
@@ -38,8 +34,6 @@ app.include_router(salas.router)
 app.include_router(contratos.router)
 app.include_router(cep.router)
 
-app.mount(
-    "/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads"
-)
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 # uvicorn app.main:app --reload

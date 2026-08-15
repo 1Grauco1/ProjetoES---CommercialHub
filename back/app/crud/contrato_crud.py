@@ -1,7 +1,8 @@
-from app.models.contrato import Contrato
-from app.schemas import contrato_schemas
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+from app.models.contrato import Contrato
+from app.schemas import contrato_schemas
 
 
 def criar_contrato(
@@ -25,8 +26,8 @@ def criar_contrato(
     return contrato
 
 
-def listar_contratos(db: Session) -> list[Contrato]:
-    return list(db.scalars(select(Contrato)))
+def listar_contratos(db: Session, id_usuario: int) -> list[Contrato]:
+    return list(db.scalars(select(Contrato).where(Contrato.id_usuario == id_usuario)))
 
 
 def buscar_contrato(db: Session, id: int) -> Contrato | None:

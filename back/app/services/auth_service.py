@@ -1,7 +1,8 @@
-from app.core.security import criar_access_token, verificar_senha
-from app.crud import usuario_crud
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+
+from app.core.security import criar_access_token, verificar_senha
+from app.crud import usuario_crud
 
 
 def realizar_login(db: Session, email: str, senha: str) -> dict[str, str]:

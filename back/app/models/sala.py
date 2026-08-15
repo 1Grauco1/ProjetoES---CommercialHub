@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from enum import Enum
 
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.models.base import Base
 from app.models.contrato import Contrato
-from sqlalchemy import Boolean, Enum as SQLEnum
-from sqlalchemy import Float, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class StatusSala(Enum):
@@ -15,11 +17,11 @@ class StatusSala(Enum):
     ALUGADA = "Alugada"
     MANUTENCAO = "Manutenção"
 
+
 class TipoSala(Enum):
     COMERCIAL = "Comercial"
     RESIDENCIAL = "Residencial"
-    
-    
+
 
 class Sala(Base):
     __tablename__ = "salas"
@@ -39,8 +41,8 @@ class Sala(Base):
     status_ocupacao: Mapped[StatusSala] = mapped_column(SQLEnum(StatusSala))
 
     descricao: Mapped[str] = mapped_column(Text, nullable=False)
-    
-    tipo : Mapped[TipoSala] = mapped_column(SQLEnum(TipoSala), nullable= False)
+
+    tipo: Mapped[TipoSala] = mapped_column(SQLEnum(TipoSala), nullable=False)
 
     quartos: Mapped[int] = mapped_column(Integer, default=0)
     banheiros: Mapped[int] = mapped_column(Integer, default=0)
@@ -56,14 +58,14 @@ class Sala(Base):
 
     usuario = relationship("Usuario", back_populates="salas")
 
-    endereco = relationship("Endereco", back_populates="sala")
-    
+    @property
+    def proprietario_whatsapp(self) -> str | None:
+        try:
+            return self.usuario.pessoa.telefone or None
+        except AttributeError, InvalidRequestError:
+            return None
 
-    contratos: Mapped[list["Contrato"]] = relationship(
-        "Contrato", back_populates="sala"
-    )
-    fotos = relationship(
-    "Foto",
-    back_populates="sala",
-    cascade="all, delete-orphan"
-)
+    endereco = relationship("Endereco", back_populates="sala")
+
+    contratos: Mapped[list[Contrato]] = relationship("Contrato", back_populates="sala")
+    fotos = relationship("Foto", back_populates="sala", cascade="all, delete-orphan")

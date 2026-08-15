@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -25,9 +23,9 @@ class EnderecoResponse(BaseModel):
 
 
 class EnderecoUpdate(BaseModel):
-    rua: Optional[str] = None
-    numero: Optional[str] = None
-    bairro: Optional[str] = None
-    cidade: Optional[str] = None
-    estado: Optional[str] = Field(default=None, max_length=2)
-    cep: Optional[str] = None
+    rua: str | None = None
+    numero: str | None = None
+    bairro: str | None = None
+    cidade: str | None = None
+    estado: str | None = Field(default=None, max_length=2)
+    cep: str | None = None

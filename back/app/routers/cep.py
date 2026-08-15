@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
+
 from app.services.cep_service import buscar_cep
 
 router = APIRouter(prefix="/cep", tags=["CEP"])
+
 
 @router.get("/{cep}")
 async def consultar_cep(cep: str):

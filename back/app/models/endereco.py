@@ -1,6 +1,7 @@
-from app.models.base import Base
-from sqlalchemy import Integer, String
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.base import Base
 
 
 class Endereco(Base):
@@ -21,5 +22,5 @@ class Endereco(Base):
     cep: Mapped[str] = mapped_column(String(9))
 
     sala = relationship("Sala", back_populates="endereco", uselist=False)
-    
+
     pessoa = relationship("Pessoa", back_populates="endereco", uselist=False)

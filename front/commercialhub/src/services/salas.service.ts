@@ -62,11 +62,7 @@ export type CriarSalaPayload = {
     | "internet"
     | "alarme"
     | "estacionamento"
-  > & {
-    id_usuario?: number;
-    id_endereco: number;
-    fotos?: FotoItem[] | string | null;
-  };
+  >;
 
   dados_endereco: Endereco;
 };
