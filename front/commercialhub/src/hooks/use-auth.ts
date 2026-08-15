@@ -32,7 +32,6 @@ export function useAuth() {
         email: string;
         password: string;
         phone: string;
-        nivel_acesso: string;
     }) => {
         setError(null);
         setLoading(true);

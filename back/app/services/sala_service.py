@@ -71,6 +71,7 @@ async def adicionar_foto(
     id_usuario: int,
 ) -> Sala:
     try:
+
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
         if not sala:

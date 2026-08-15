@@ -3,7 +3,6 @@ export type Perfil = {
   nome: string;
   email: string;
   telefone?: string | null;
-  tipoConta?: string | null;
   foto?: string | null;
 };
 
@@ -11,7 +10,6 @@ export type AtualizarPerfil = {
   nomeCompleto?: string;
   email?: string;
   telefone?: string;
-  tipoConta?: string;
 };
 
 const API_URL =

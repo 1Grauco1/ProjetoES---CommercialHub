@@ -38,7 +38,6 @@ export default function CadastroPage() {
                 email: values.email,
                 password: values.password,
                 phone: values.phone,
-                nivel_acesso: values.nivel_acesso,
             });
             router.push('/login');
         } catch {
@@ -121,20 +120,6 @@ export default function CadastroPage() {
                                         placeholder="(83) 99999-9999"
                                     />
                                     {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="mb-2 block text-sm font-semibold text-[#1B263B]">Tipo de Perfil</label>
-                                    <select
-                                        {...register('nivel_acesso')}
-                                        className="w-full rounded-xl border border-gray-300 bg-[#D9D9D9] px-4 py-3 outline-none focus:border-[#D35400] text-[#1B263B]"
-                                        defaultValue=""
-                                    >
-                                        <option value="" disabled>Selecione seu perfil...</option>
-                                        <option value="Inquilino">Quero alugar (Inquilino)</option>
-                                        <option value="Proprietário">Sou proprietário de salas</option>
-                                    </select>
-                                    {errors.nivel_acesso && <p className="mt-1 text-sm text-red-600">{errors.nivel_acesso.message}</p>}
                                 </div>
                             </div>
 

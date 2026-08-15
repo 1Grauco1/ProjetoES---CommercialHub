@@ -23,21 +23,15 @@ export default function EditarPerfilPage() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [tipoConta, setTipoConta] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!perfil) return;
 
-    const perfilComTipoConta = perfil as typeof perfil & {
-      tipoConta?: string;
-    };
-
     setNome(perfil.nome ?? '');
     setEmail(perfil.email ?? '');
     setTelefone(perfil.telefone ?? '');
-    setTipoConta(perfilComTipoConta.tipoConta ?? '');
   }, [perfil]);
 
   const salvar = async (event: React.FormEvent) => {
@@ -131,23 +125,6 @@ export default function EditarPerfilPage() {
                 onChange={setTelefone}
                 disabled={loading}
               />
-
-              <label className="text-sm font-semibold sm:col-span-2">
-                <span>Tipo de conta</span>
-
-                <select
-                  value={tipoConta}
-                  onChange={(event) =>
-                    setTipoConta(event.target.value)
-                  }
-                  className={inputStyle}
-                  disabled={loading}
-                >
-                  <option value="">Selecione</option>
-                  <option value="Proprietário">Proprietário</option>
-                  <option value="Empreendedor">Empreendedor</option>
-                </select>
-              </label>
             </div>
           </section>
 

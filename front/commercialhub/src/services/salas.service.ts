@@ -20,7 +20,7 @@ export type FotoItem = string | { id?: number; url: string };
 
 export type Sala = {
   id: number;
-  id_proprietario: number;
+  id_usuario?: number;
   id_endereco: number;
   titulo: string;
   tamanho: number;
@@ -29,7 +29,18 @@ export type Sala = {
   fotos?: FotoItem[] | string | null;
   descricao: string;
   tipo: TipoSala;
+  quartos: number;
+  banheiros: number;
+  vagas_garagem: number;
+  ar_condicionado: boolean;
+  elevador: boolean;
+  portaria: boolean;
+  mobiliada: boolean;
+  internet: boolean;
+  alarme: boolean;
+  estacionamento: boolean;
   endereco?: Endereco | null;
+  proprietario_whatsapp?: string | null;
 };
 
 export type CriarSalaPayload = {
@@ -41,8 +52,18 @@ export type CriarSalaPayload = {
     | "status_ocupacao"
     | "descricao"
     | "tipo"
+    | "quartos"
+    | "banheiros"
+    | "vagas_garagem"
+    | "ar_condicionado"
+    | "elevador"
+    | "portaria"
+    | "mobiliada"
+    | "internet"
+    | "alarme"
+    | "estacionamento"
   > & {
-    id_proprietario: number;
+    id_usuario?: number;
     id_endereco: number;
     fotos?: FotoItem[] | string | null;
   };
@@ -53,6 +74,30 @@ export type CriarSalaPayload = {
 export type AtualizarSalaPayload = {
   dados_sala?: Partial<CriarSalaPayload["dados_sala"]>;
   dados_endereco?: Partial<Endereco>;
+};
+
+export type SalaFilterSearch = {
+  termo?: string;
+  cidade?: string;
+  estado?: string;
+  bairro?: string;
+  cep?: string;
+  status_ocupacao?: StatusSala;
+  tamanho_min?: number;
+  tamanho_max?: number;
+  preco_min?: number;
+  preco_max?: number;
+  tipo?: TipoSala;
+  quartos_min?: number;
+  banheiros_min?: number;
+  vagas_garagem_min?: number;
+  ar_condicionado?: boolean;
+  elevador?: boolean;
+  portaria?: boolean;
+  mobiliada?: boolean;
+  internet?: boolean;
+  alarme?: boolean;
+  estacionamento?: boolean;
 };
 
 function authHeaders(json = true) {
@@ -177,6 +222,19 @@ export async function atualizarSala(
   }
 
   return sala;
+}
+
+export async function buscarSalas(
+  filtros: SalaFilterSearch
+): Promise<Sala[]> {
+  return (await responseData(
+    await fetch("/api/salas/buscar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(filtros),
+    }),
+    "Não foi possível buscar as salas."
+  )) as Sala[];
 }
 
 export async function deletarSala(id: number) {

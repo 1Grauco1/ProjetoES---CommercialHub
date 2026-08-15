@@ -17,6 +17,16 @@ const schema = z.object({
   tamanho: z.coerce.number().positive('Informe uma metragem válida.'),
   preco: z.coerce.number().positive('Informe um preço válido.'),
   status_ocupacao: z.enum(['Disponível', 'Reservada', 'Alugada', 'Manutenção']),
+  quartos: z.coerce.number().int().min(0, 'Informe quantidade válida.'),
+  banheiros: z.coerce.number().int().min(0, 'Informe quantidade válida.'),
+  vagas_garagem: z.coerce.number().int().min(0, 'Informe quantidade válida.'),
+  ar_condicionado: z.enum(['true', 'false']),
+  elevador: z.enum(['true', 'false']),
+  portaria: z.enum(['true', 'false']),
+  mobiliada: z.enum(['true', 'false']),
+  internet: z.enum(['true', 'false']),
+  alarme: z.enum(['true', 'false']),
+  estacionamento: z.enum(['true', 'false']),
 
   // Campos de Endereço
   rua: z.string().min(3, 'Informe a rua.'),
@@ -54,6 +64,16 @@ export default function CadastrarImovelPage() {
     defaultValues: {
       status_ocupacao: 'Disponível',
       tipo: 'Comercial',
+      quartos: 0,
+      banheiros: 0,
+      vagas_garagem: 0,
+      ar_condicionado: 'false',
+      elevador: 'false',
+      portaria: 'false',
+      mobiliada: 'false',
+      internet: 'false',
+      alarme: 'false',
+      estacionamento: 'false',
     },
     mode: 'onBlur',
   });
@@ -153,7 +173,6 @@ export default function CadastrarImovelPage() {
       await criarSala(
         {
           dados_sala: {
-            id_proprietario: 0,
             id_endereco: 0,
             titulo: values.titulo,
             descricao: values.descricao,
@@ -161,6 +180,16 @@ export default function CadastrarImovelPage() {
             tamanho: Number(values.tamanho),
             preco: Number(values.preco),
             status_ocupacao: values.status_ocupacao,
+            quartos: Number(values.quartos),
+            banheiros: Number(values.banheiros),
+            vagas_garagem: Number(values.vagas_garagem),
+            ar_condicionado: values.ar_condicionado === 'true',
+            elevador: values.elevador === 'true',
+            portaria: values.portaria === 'true',
+            mobiliada: values.mobiliada === 'true',
+            internet: values.internet === 'true',
+            alarme: values.alarme === 'true',
+            estacionamento: values.estacionamento === 'true',
             fotos: null,
           },
           dados_endereco: {
@@ -484,6 +513,84 @@ export default function CadastrarImovelPage() {
 
                 {error('status_ocupacao')}
               </label>
+            </div>
+
+            <div className="mt-6 grid gap-5 sm:grid-cols-3">
+              <label className="text-sm font-semibold">
+                <span className="mb-2 block">Quartos</span>
+                <input
+                  type="number"
+                  min={0}
+                  {...register('quartos')}
+                  className={inputStyle}
+                  placeholder="0"
+                />
+                {error('quartos')}
+              </label>
+
+              <label className="text-sm font-semibold">
+                <span className="mb-2 block">Banheiros</span>
+                <input
+                  type="number"
+                  min={0}
+                  {...register('banheiros')}
+                  className={inputStyle}
+                  placeholder="0"
+                />
+                {error('banheiros')}
+              </label>
+
+              <label className="text-sm font-semibold">
+                <span className="mb-2 block">Vagas de garagem</span>
+                <input
+                  type="number"
+                  min={0}
+                  {...register('vagas_garagem')}
+                  className={inputStyle}
+                  placeholder="0"
+                />
+                {error('vagas_garagem')}
+              </label>
+            </div>
+
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { field: 'ar_condicionado', label: 'Ar condicionado' },
+                { field: 'elevador', label: 'Elevador' },
+                { field: 'portaria', label: 'Portaria' },
+                { field: 'mobiliada', label: 'Mobiliada' },
+                { field: 'internet', label: 'Internet' },
+                { field: 'alarme', label: 'Alarme' },
+                { field: 'estacionamento', label: 'Estacionamento' },
+              ].map((feature) => (
+                <fieldset
+                  key={feature.field}
+                  className="rounded-3xl border border-slate-200 p-4"
+                >
+                  <legend className="text-sm font-semibold text-slate-700">
+                    {feature.label}
+                  </legend>
+
+                  <div className="mt-3 flex items-center gap-3">
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        value="true"
+                        {...register(feature.field as any)}
+                      />
+                      Sim
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-sm">
+                      <input
+                        type="radio"
+                        value="false"
+                        {...register(feature.field as any)}
+                      />
+                      Não
+                    </label>
+                  </div>
+                </fieldset>
+              ))}
             </div>
           </section>
 

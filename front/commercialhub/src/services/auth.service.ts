@@ -10,7 +10,6 @@ interface RegisterPayload {
     email: string;
     password: string;
     phone: string;
-    nivel_acesso: string;
 }
 
 export const authService = {
@@ -32,8 +31,7 @@ export const authService = {
             nome: payload.name,
             email: payload.email,
             senha: payload.password,
-            telefone: payload.phone,
-            nivel_acesso: payload.nivel_acesso
+            telefone: payload.phone
         });
         return response.data;
     }

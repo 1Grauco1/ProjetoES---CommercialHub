@@ -1,7 +1,6 @@
-from app.models.foto import Foto
-from app.services.arquivo_service import UPLOADS_DIR
 from pathlib import Path
-from sqlalchemy import select
+
+from app.models.foto import Foto
 from sqlalchemy.orm import Session
 
 
@@ -36,6 +35,6 @@ def removerArquivo(db: Session, id_foto: int) -> None:
     foto = buscarFoto(db, id_foto)
 
     if foto:
-        arquivo = UPLOADS_DIR / Path(foto.caminho).name
+        arquivo = Path(foto.caminho)
         if arquivo.exists():
             arquivo.unlink()
