@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+type FotoItem = string | { id?: number; url: string };
+
+function urlDaFoto(foto: FotoItem): string {
+  return typeof foto === "string" ? foto : foto.url ?? "";
+}
+
 export default function DebugSalaPage() {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState("");
@@ -55,7 +61,7 @@ export default function DebugSalaPage() {
     );
   }
 
-  const fotos = Array.isArray(data.fotos) ? data.fotos : [];
+  const fotos: FotoItem[] = Array.isArray(data.fotos) ? data.fotos : [];
 
   return (
     <main className="min-h-screen bg-slate-100 p-10">
@@ -95,13 +101,13 @@ export default function DebugSalaPage() {
             </h2>
 
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {fotos.map((foto: string, index: number) => (
+              {fotos.map((foto: FotoItem, index: number) => (
                 <div
-                  key={`${foto}-${index}`}
+                  key={`${urlDaFoto(foto)}-${index}`}
                   className="overflow-hidden rounded-xl border border-slate-200"
                 >
                   <img
-                    src={foto}
+                    src={urlDaFoto(foto)}
                     alt={`Foto ${index + 1}`}
                     className="h-52 w-full object-cover"
                   />
@@ -112,7 +118,7 @@ export default function DebugSalaPage() {
                     </p>
 
                     <p className="mt-1 break-all text-xs text-slate-500">
-                      {foto}
+                      {urlDaFoto(foto)}
                     </p>
                   </div>
                 </div>

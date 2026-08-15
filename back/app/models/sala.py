@@ -56,6 +56,13 @@ class Sala(Base):
 
     usuario = relationship("Usuario", back_populates="salas")
 
+    @property
+    def proprietario_whatsapp(self) -> str | None:
+        try:
+            return self.usuario.pessoa.telefone or None
+        except Exception:
+            return None
+
     endereco = relationship("Endereco", back_populates="sala")
     
 

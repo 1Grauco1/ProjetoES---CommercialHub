@@ -59,6 +59,7 @@ class SalaResponse(BaseModel):
     alarme: bool
     estacionamento: bool
     endereco: Optional[EnderecoResponse] = None
+    proprietario_whatsapp: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
