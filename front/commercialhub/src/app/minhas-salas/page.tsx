@@ -32,8 +32,31 @@ export default function SalasPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletedIds, setDeletedIds] = useState<number[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
-  
-  const visibleSalas = salas.filter((sala) => !deletedIds.includes(sala.id));
+  const [searchName, setSearchName] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
+
+  const termo = searchName.trim().toLowerCase();
+  const local = searchLocation.trim().toLowerCase();
+
+  const visibleSalas = salas.filter((sala) => {
+    if (deletedIds.includes(sala.id)) return false;
+
+    const tituloValido = (sala.titulo || "").toLowerCase();
+    const tipoValido = (sala.tipo || "").toLowerCase();
+
+    const matchName =
+      !termo || tituloValido.includes(termo) || tipoValido.includes(termo);
+
+    const endereco = sala.endereco;
+    const matchLocation =
+      !local ||
+      (endereco &&
+        ((endereco.bairro || "").toLowerCase().includes(local) ||
+          (endereco.cidade || "").toLowerCase().includes(local) ||
+          (endereco.estado || "").toLowerCase().includes(local)));
+
+    return matchName && matchLocation;
+  });
 
   const excluirSala = async (id: number) => {
     if (
@@ -75,12 +98,20 @@ export default function SalasPage() {
           <Search size={18} className="text-slate-400" />
           <input
             className="h-12 w-full bg-transparent text-sm outline-none"
-            placeholder="Buscar sala..."
+            placeholder="Nome da sala ou tipo..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
           />
         </div>
-        <button className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold">
-          Filtros
-        </button>
+        <div className="flex flex-1 items-center gap-2 rounded-xl bg-slate-100 px-4">
+          <MapPin size={18} className="text-slate-400" />
+          <input
+            className="h-12 w-full bg-transparent text-sm outline-none"
+            placeholder="Bairro ou cidade..."
+            value={searchLocation}
+            onChange={(e) => setSearchLocation(e.target.value)}
+          />
+        </div>
       </div>
       {(error || actionError) && (
         <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
