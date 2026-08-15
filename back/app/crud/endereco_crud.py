@@ -1,10 +1,13 @@
 from app.models.endereco import Endereco
-from app.schemas import endereco_schemas
-from sqlalchemy import select
+from app.schemas import endereco_schema
 from sqlalchemy.orm import Session
 
 
-def criar_endereco(db: Session, dados_endereco: endereco_schemas.EnderecoCreate) -> Endereco:
+def criar_endereco(
+    db: Session, dados_endereco : endereco_schema.EnderecoCreate
+   
+):
+
     endereco = Endereco(
         rua=dados_endereco.rua,
         numero=dados_endereco.numero,
@@ -19,14 +22,14 @@ def criar_endereco(db: Session, dados_endereco: endereco_schemas.EnderecoCreate)
 
     return endereco
 
-
-def buscar_endereco(db: Session, id_endereco: int) -> Endereco | None:
-    return db.scalar(select(Endereco).where(Endereco.id == id_endereco))
+def buscar_endereco(db: Session, id_endereco: int):
+    return db.query(Endereco).filter_by(id=id_endereco).first()
 
 
 def editar_endereco(
-    db: Session, id_endereco: int, dados_endereco_update: endereco_schemas.EnderecoUpdate
-) -> Endereco | None:
+    db: Session, id_endereco: int, dados_endereco_update: endereco_schema.EnderecoUpdate
+):
+
     endereco = buscar_endereco(db, id_endereco)
 
     if not endereco:
@@ -37,4 +40,20 @@ def editar_endereco(
     for campo, valor in dados.items():
         setattr(endereco, campo, valor)
 
+    
+    db.refresh(endereco)
+
     return endereco
+
+
+def remover_endereco(db: Session, id_endereco: int):
+
+    endereco = buscar_endereco(db, id_endereco)
+
+    if endereco:
+        db.delete(endereco)
+        
+
+        return {"message": "Endereço removido."}
+
+    return None

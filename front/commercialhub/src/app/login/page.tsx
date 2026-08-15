@@ -6,9 +6,8 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import { loginSchema } from '@/src/validators/auth';
-import type { LoginFormValues } from '@/src/types/auth';
-import { authService } from '@/src/services/auth.service';
+import { loginSchema, type LoginFormValues } from '@/src/lib/auth-schema';
+import { authApi } from '@/src/lib/api';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -30,17 +29,14 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         try {
-            const response = await authService.login({
+            const response = await authApi.login({
                 username: values.email,
                 password: values.password,
             });
             const token = response.access_token ?? response.token;
             if (!token) throw new Error('A API não retornou um token de acesso.');
             localStorage.setItem('token', token);
-            const redirect =
-              new URLSearchParams(window.location.search).get('redirect') ||
-              '/dashboard';
-            router.push(redirect);
+            router.push('/dashboard');
         } catch {
             setSubmitError('Não foi possível entrar. Verifique as credenciais e tente novamente.');
         } finally {

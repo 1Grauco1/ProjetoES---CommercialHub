@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { Search, PlusCircle, SlidersHorizontal, Wallet, ChevronRight, HomeIcon } from 'lucide-react';
-import Link from 'next/link';
+import Header from '@/src/components/layout/Header';
   
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-[#1B263B] font-['Montserrat'] antialiased">
+      <Header />
 
       <section
         className="w-full min-h-[647px] px-6 py-12 md:px-[215px] md:py-[49px] flex items-center justify-center bg-cover bg-center bg-no-repeat"
@@ -23,26 +24,26 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 w-full max-w-[898px] justify-center mt-4">
-''
-            <Link
-              href={"/busca-sala"}
+
+            <button
+              type="button"
               className="group flex-1 max-w-[424px] h-[59px] bg-white border border-gray-200 rounded-[10px] shadow-[0_10px_4px_rgba(0,0,0,0.25)] flex items-center justify-center gap-2 hover:bg-gray-50 transition-all active:scale-95"
             >
               <Search className="w-6 h-6 text-[#1B263B]" />
               <span className="font-['Montserrat'] font-medium text-lg text-[#1C273B]">
                 Buscar Sala Comercial
               </span>
-            </Link>
+            </button>
 
-            <Link
-              href={"/login"}
+            <button
+              type="button"
               className="group flex-1 max-w-[424px] h-[59px] bg-[#D35400] rounded-[10px] shadow-[0_10px_4px_rgba(0,0,0,0.25)] flex items-center justify-center gap-2 hover:bg-[#D35400]/95 transition-all active:scale-95"
             >
               <PlusCircle className="w-6 h-6 text-white" />
               <span className="font-['Montserrat'] font-semibold text-lg text-white">
                 Anunciar Meu Imóvel
               </span>
-            </Link>
+            </button>
 
           </div>
         </div>

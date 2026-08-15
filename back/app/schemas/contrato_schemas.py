@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict
 
 class ContratoCreate(BaseModel):
     id_sala: int
+    id_inquilino: int
+    id_proprietario: int
     data_inicio: date
     data_termino: date
     valor: float
@@ -16,7 +18,7 @@ class ContratoCreate(BaseModel):
 class ContratoResponse(BaseModel):
     id: int
     id_sala: int
-    id_usuario: int
+    id_inquilino: int
     data_inicio: date
     data_termino: date
     valor: float

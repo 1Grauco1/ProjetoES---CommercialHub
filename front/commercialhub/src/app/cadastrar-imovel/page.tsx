@@ -1,11 +1,11 @@
 'use client';
 
 import DashboardShell from '@/src/components/dashboard/DashboardShell';
-import { criarSala } from '@/src/services/salas.service';
+import { criarSala } from '@/src/lib/salas-api';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, ChevronRight, ImagePlus, LoaderCircle, X } from 'lucide-react';
+import { ImagePlus, LoaderCircle, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -17,17 +17,7 @@ const schema = z.object({
   tamanho: z.coerce.number().positive('Informe uma metragem válida.'),
   preco: z.coerce.number().positive('Informe um preço válido.'),
   status_ocupacao: z.enum(['Disponível', 'Reservada', 'Alugada', 'Manutenção']),
-  quartos: z.coerce.number().int().min(0, 'Informe quantidade válida.'),
-  banheiros: z.coerce.number().int().min(0, 'Informe quantidade válida.'),
-  vagas_garagem: z.coerce.number().int().min(0, 'Informe quantidade válida.'),
-  ar_condicionado: z.enum(['true', 'false']),
-  elevador: z.enum(['true', 'false']),
-  portaria: z.enum(['true', 'false']),
-  mobiliada: z.enum(['true', 'false']),
-  internet: z.enum(['true', 'false']),
-  alarme: z.enum(['true', 'false']),
-  estacionamento: z.enum(['true', 'false']),
-
+  
   // Campos de Endereço
   rua: z.string().min(3, 'Informe a rua.'),
   numero: z.string().min(1, 'Informe o número.'),
@@ -47,9 +37,8 @@ const inputStyle =
 
 export default function CadastrarImovelPage() {
   const router = useRouter();
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
@@ -61,19 +50,9 @@ export default function CadastrarImovelPage() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
+    defaultValues: { 
       status_ocupacao: 'Disponível',
       tipo: 'Comercial',
-      quartos: 0,
-      banheiros: 0,
-      vagas_garagem: 0,
-      ar_condicionado: 'false',
-      elevador: 'false',
-      portaria: 'false',
-      mobiliada: 'false',
-      internet: 'false',
-      alarme: 'false',
-      estacionamento: 'false',
     },
     mode: 'onBlur',
   });
@@ -106,73 +85,26 @@ export default function CadastrarImovelPage() {
     }
   };
 
-  const pickImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-
-    const validFiles: File[] = [];
-    const newPreviews: string[] = [];
-
-    for (const file of files) {
-      if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
-        setMessage('Escolha apenas imagens de até 5 MB.');
-        return;
-      }
-
-      validFiles.push(file);
-      newPreviews.push(URL.createObjectURL(file));
+  const pickImage = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) {
+      setMessage('Escolha uma imagem de até 5 MB.');
+      return;
     }
-
     setMessage(null);
-
-    setImages((prev) => [...prev, ...validFiles]);
-    setPreviews((prev) => [...prev, ...newPreviews]);
-
-    // Se ainda não houver uma imagem sendo exibida,
-    // começa pela primeira imagem adicionada.
-    if (previews.length === 0) {
-      setCurrentIndex(0);
-    }
-
-    // Permite selecionar novamente o mesmo arquivo.
-    event.target.value = '';
-  };
-
-  const removeImage = (indexToRemove: number) => {
-    const previewToRemove = previews[indexToRemove];
-
-    if (previewToRemove) {
-      URL.revokeObjectURL(previewToRemove);
-    }
-
-    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
-    setPreviews((prev) => prev.filter((_, index) => index !== indexToRemove));
-
-    if (currentIndex >= previews.length - 1) {
-      setCurrentIndex((prev) => Math.max(0, prev - 1));
-    }
-  };
-
-  const nextImage = () => {
-    if (previews.length > 0) {
-      setCurrentIndex((prev) => (prev + 1) % previews.length);
-    }
-  };
-
-  const prevImage = () => {
-    if (previews.length > 0) {
-      setCurrentIndex((prev) => (prev - 1 + previews.length) % previews.length);
-    }
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
   };
 
   const submit = async (values: FormValues) => {
     setMessage(null);
     setLoading(true);
-
     try {
       await criarSala(
         {
           dados_sala: {
+            id_proprietario: 0,
             id_endereco: 0,
             titulo: values.titulo,
             descricao: values.descricao,
@@ -180,16 +112,6 @@ export default function CadastrarImovelPage() {
             tamanho: Number(values.tamanho),
             preco: Number(values.preco),
             status_ocupacao: values.status_ocupacao,
-            quartos: Number(values.quartos),
-            banheiros: Number(values.banheiros),
-            vagas_garagem: Number(values.vagas_garagem),
-            ar_condicionado: values.ar_condicionado === 'true',
-            elevador: values.elevador === 'true',
-            portaria: values.portaria === 'true',
-            mobiliada: values.mobiliada === 'true',
-            internet: values.internet === 'true',
-            alarme: values.alarme === 'true',
-            estacionamento: values.estacionamento === 'true',
             fotos: null,
           },
           dados_endereco: {
@@ -201,33 +123,24 @@ export default function CadastrarImovelPage() {
             cep: values.cep,
           },
         },
-
-        // Envia todas as imagens selecionadas.
-        // Se nenhuma imagem foi selecionada, não envia imagens.
-        images.length > 0 ? images : undefined
+        image ?? undefined
       );
-
       router.push('/minhas-salas');
     } catch (error) {
       setMessage(
-        error instanceof Error
-          ? error.message
-          : 'Não foi possível salvar a sala.'
+        error instanceof Error ? error.message : 'Não foi possível salvar a sala.'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const error = (key: keyof FormValues) => {
-    if (!errors[key]) return null;
-
-    return (
+  const error = (key: keyof FormValues) =>
+    errors[key] && (
       <p className="mt-1 text-xs font-medium text-red-600">
         {errors[key]?.message as string}
       </p>
     );
-  };
 
   const { onBlur: cepOnBlur, ...cepRegister } = register('cep');
 
@@ -246,76 +159,45 @@ export default function CadastrarImovelPage() {
           <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
             <h2 className="text-xl font-bold">Imagem do imóvel</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Adicione imagens para destacar o seu anúncio.
+              Adicione uma imagem para destacar o seu anúncio.
             </p>
-
             <div className="mt-5 flex flex-col gap-5 sm:flex-row">
-              <div className="relative h-40 w-full overflow-hidden rounded-xl bg-slate-100 sm:w-56">
-                {previews.length > 0 ? (
-                  <>
-                    <img
-                      src={previews[currentIndex]}
-                      alt={`Prévia do imóvel ${currentIndex + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-
-                    {previews.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={prevImage}
-                          className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={nextImage}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-
-                        <span className="absolute bottom-1 right-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-                          {currentIndex + 1} / {previews.length}
-                        </span>
-                      </>
-                    )}
-                  </>
+              <div className="grid h-40 w-full place-items-center overflow-hidden rounded-xl bg-slate-100 sm:w-56">
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Prévia do imóvel"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
-                  <div className="grid h-full w-full place-items-center">
-                    <ImagePlus className="text-slate-400" size={36} />
-                  </div>
+                  <ImagePlus className="text-slate-400" size={36} />
                 )}
               </div>
-
               <div className="flex flex-col justify-center">
-                <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#D35400] px-5 py-3 text-sm font-semibold text-[#D35400] hover:bg-orange-50 transition-colors">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#D35400] px-5 py-3 text-sm font-semibold text-[#D35400] hover:bg-orange-50">
                   <ImagePlus size={18} className="mr-2" />
                   Enviar imagem
-
                   <input
                     type="file"
-                    multiple
                     accept="image/png,image/jpeg,image/webp"
                     onChange={pickImage}
                     className="hidden"
                   />
                 </label>
-
                 <p className="mt-2 text-xs text-slate-400">
-                  PNG, JPG ou WEBP — máximo de 5 MB por arquivo
+                  PNG, JPG ou WEBP — máximo de 5 MB
                 </p>
-
-                {previews.length > 0 && (
+                {image && (
                   <button
                     type="button"
-                    onClick={() => removeImage(currentIndex)}
-                    className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700"
+                    onClick={() => {
+                      setImage(null);
+                      setPreview(null);
+                    }}
+                    className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-red-600"
                   >
                     <X size={14} />
-                    Remover imagem atual
+                    Remover imagem
                   </button>
                 )}
               </div>
@@ -325,30 +207,25 @@ export default function CadastrarImovelPage() {
           {/* Seção Informações Básicas (Título e Descrição) */}
           <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
             <h2 className="text-xl font-bold">Informações Gerais</h2>
-
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <label className="text-sm font-semibold sm:col-span-2">
-                <span>Título do Anúncio</span>
-
+                Título do Anúncio
                 <input
                   {...register('titulo')}
                   className={inputStyle}
                   placeholder="Ex: Sala comercial no centro com ótimo acabamento"
                 />
-
                 {error('titulo')}
               </label>
 
               <label className="text-sm font-semibold sm:col-span-2">
-                <span>Descrição</span>
-
+                Descrição
                 <textarea
                   {...register('descricao')}
                   rows={4}
                   className={inputStyle}
                   placeholder="Descreva detalhes adicionais, infraestrutura do prédio, etc."
                 />
-
                 {error('descricao')}
               </label>
             </div>
@@ -357,20 +234,16 @@ export default function CadastrarImovelPage() {
           {/* Seção Endereço */}
           <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
             <h2 className="text-xl font-bold">Endereço</h2>
-
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <label className="text-sm font-semibold sm:col-span-2">
                 <div className="flex items-center justify-between">
                   <span>CEP</span>
-
                   {loadingCep && (
                     <span className="flex items-center gap-1 text-xs text-[#D35400]">
-                      <LoaderCircle className="animate-spin" size={12} />
-                      Buscando CEP...
+                      <LoaderCircle className="animate-spin" size={12} /> Buscando CEP...
                     </span>
                   )}
                 </div>
-
                 <input
                   {...cepRegister}
                   onBlur={(e) => {
@@ -380,64 +253,54 @@ export default function CadastrarImovelPage() {
                   className={inputStyle}
                   placeholder="50000-000"
                 />
-
                 {error('cep')}
               </label>
 
               <label className="text-sm font-semibold sm:col-span-2">
-                <span className="mb-2 block">Rua</span>
-
+                Rua
                 <input
                   {...register('rua')}
                   disabled={loadingCep}
                   className={inputStyle}
                   placeholder="Rua das Flores"
                 />
-
                 {error('rua')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Número</span>
-
+                Número
                 <input
                   {...register('numero')}
                   className={inputStyle}
                   placeholder="123"
                 />
-
                 {error('numero')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Bairro</span>
-
+                Bairro
                 <input
                   {...register('bairro')}
                   disabled={loadingCep}
                   className={inputStyle}
                   placeholder="Centro"
                 />
-
                 {error('bairro')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Cidade</span>
-
+                Cidade
                 <input
                   {...register('cidade')}
                   disabled={loadingCep}
                   className={inputStyle}
                   placeholder="Recife"
                 />
-
                 {error('cidade')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Estado</span>
-
+                Estado
                 <input
                   {...register('estado')}
                   disabled={loadingCep}
@@ -445,7 +308,6 @@ export default function CadastrarImovelPage() {
                   className={inputStyle}
                   placeholder="PE"
                 />
-
                 {error('estado')}
               </label>
             </div>
@@ -454,11 +316,9 @@ export default function CadastrarImovelPage() {
           {/* Seção Características */}
           <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
             <h2 className="text-xl font-bold">Características</h2>
-
             <div className="mt-6 grid gap-5 sm:grid-cols-2 sm:md:grid-cols-4">
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Tipo</span>
-
+                Tipo
                 <select
                   {...register('tipo')}
                   className={inputStyle}
@@ -466,13 +326,11 @@ export default function CadastrarImovelPage() {
                   <option value="Comercial">Comercial</option>
                   <option value="Residencial">Residencial</option>
                 </select>
-
                 {error('tipo')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Tamanho (m²)</span>
-
+                Tamanho (m²)
                 <input
                   type="number"
                   step="0.01"
@@ -480,13 +338,11 @@ export default function CadastrarImovelPage() {
                   className={inputStyle}
                   placeholder="45"
                 />
-
                 {error('tamanho')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Preço mensal (R$)</span>
-
+                Preço mensal (R$)
                 <input
                   type="number"
                   step="0.01"
@@ -494,13 +350,11 @@ export default function CadastrarImovelPage() {
                   className={inputStyle}
                   placeholder="4500"
                 />
-
                 {error('preco')}
               </label>
 
               <label className="text-sm font-semibold">
-                <span className="mb-2 block">Situação</span>
-
+                Situação
                 <select
                   {...register('status_ocupacao')}
                   className={inputStyle}
@@ -510,87 +364,8 @@ export default function CadastrarImovelPage() {
                   <option value="Alugada">Alugada</option>
                   <option value="Manutenção">Manutenção</option>
                 </select>
-
                 {error('status_ocupacao')}
               </label>
-            </div>
-
-            <div className="mt-6 grid gap-5 sm:grid-cols-3">
-              <label className="text-sm font-semibold">
-                <span className="mb-2 block">Quartos</span>
-                <input
-                  type="number"
-                  min={0}
-                  {...register('quartos')}
-                  className={inputStyle}
-                  placeholder="0"
-                />
-                {error('quartos')}
-              </label>
-
-              <label className="text-sm font-semibold">
-                <span className="mb-2 block">Banheiros</span>
-                <input
-                  type="number"
-                  min={0}
-                  {...register('banheiros')}
-                  className={inputStyle}
-                  placeholder="0"
-                />
-                {error('banheiros')}
-              </label>
-
-              <label className="text-sm font-semibold">
-                <span className="mb-2 block">Vagas de garagem</span>
-                <input
-                  type="number"
-                  min={0}
-                  {...register('vagas_garagem')}
-                  className={inputStyle}
-                  placeholder="0"
-                />
-                {error('vagas_garagem')}
-              </label>
-            </div>
-
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { field: 'ar_condicionado', label: 'Ar condicionado' },
-                { field: 'elevador', label: 'Elevador' },
-                { field: 'portaria', label: 'Portaria' },
-                { field: 'mobiliada', label: 'Mobiliada' },
-                { field: 'internet', label: 'Internet' },
-                { field: 'alarme', label: 'Alarme' },
-                { field: 'estacionamento', label: 'Estacionamento' },
-              ].map((feature) => (
-                <fieldset
-                  key={feature.field}
-                  className="rounded-3xl border border-slate-200 p-4"
-                >
-                  <legend className="text-sm font-semibold text-slate-700">
-                    {feature.label}
-                  </legend>
-
-                  <div className="mt-3 flex items-center gap-3">
-                    <label className="inline-flex items-center gap-2 text-sm">
-                      <input
-                        type="radio"
-                        value="true"
-                        {...register(feature.field as any)}
-                      />
-                      Sim
-                    </label>
-                    <label className="inline-flex items-center gap-2 text-sm">
-                      <input
-                        type="radio"
-                        value="false"
-                        {...register(feature.field as any)}
-                      />
-                      Não
-                    </label>
-                  </div>
-                </fieldset>
-              ))}
             </div>
           </section>
 
@@ -602,7 +377,7 @@ export default function CadastrarImovelPage() {
 
           <button
             disabled={loading}
-            className="ml-auto flex items-center gap-2 rounded-xl bg-[#D35400] px-6 py-3 font-semibold text-white shadow-lg shadow-orange-950/15 disabled:cursor-not-allowed disabled:opacity-70 transition-colors"
+            className="ml-auto flex items-center gap-2 rounded-xl bg-[#D35400] px-6 py-3 font-semibold text-white shadow-lg shadow-orange-950/15 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading && <LoaderCircle className="animate-spin" size={18} />}
             {loading ? 'Salvando...' : 'Salvar informações'}

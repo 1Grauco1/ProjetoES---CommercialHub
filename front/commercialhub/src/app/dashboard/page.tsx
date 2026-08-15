@@ -2,7 +2,7 @@
 
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
 import PageHeader from "@/src/components/dashboard/PageHeader";
-import { useSalas } from "@/src/hooks/use-salas";
+import { useSalas } from "@/src/lib/use-salas";
 import {
   Building2,
   CalendarCheck,

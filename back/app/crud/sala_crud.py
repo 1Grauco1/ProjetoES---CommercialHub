@@ -1,10 +1,10 @@
-from app.models import Endereco, Sala
+from app.models import Sala, Endereco
 from app.schemas import sala_schemas
-from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 
-def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate) -> Sala:
+def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate):
     sala = Sala(**dados_sala.model_dump())
 
     db.add(sala)
@@ -13,26 +13,34 @@ def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate) -> Sala:
     return sala
 
 
-def buscar_sala_id(db: Session, id: int) -> Sala | None:
-    return db.scalar(select(Sala).where(Sala.id == id))
+def buscar_sala_id(db: Session, id: int):
+
+    return db.query(Sala).filter(Sala.id == id).first()
 
 
-def listar_salas_usuario(db: Session, id_usuario: int) -> list[Sala]:
-    return list(
-        db.scalars(select(Sala).where(Sala.id_usuario == id_usuario))
-    )
+def listar_sala_endereco(db: Session, id_endereço: int):
+
+    return db.query(Sala).filter(Sala.id_endereco == id_endereço).first()
 
 
-def buscar_salas_filtros(
-    db: Session, filtros: sala_schemas.SalaFilterSearch
-) -> list[Sala]:
+def listar_salas_proprietario(db: Session, id_proprietario: int):
+
+    salas = db.query(Sala).filter(Sala.id_proprietario == id_proprietario).all()
+
+    return salas
+
+
+def listar_salas_tamanho_maior(db: Session, tamanho: float):
+    return db.query(Sala).filter(Sala.tamanho > tamanho).all()
+
+def listar_salas_por_tamanho(db:Session):
+    return db.query(Sala).order_by(Sala.tamanho).all()
+
+def listar_salas_por_preco(db : Session):
+    return db.query(Sala).order_by(Sala.preco).all()
+
+def buscar_salas_filtros(db: Session, filtros: sala_schemas.SalaFilterSearch):
     conditions = []
-
-    if filtros.termo:
-        termo = f"%{filtros.termo}%"
-        conditions.append(
-            or_(Sala.titulo.ilike(termo), Sala.descricao.ilike(termo))
-        )
 
     if filtros.cidade:
         conditions.append(Endereco.cidade.ilike(f"%{filtros.cidade}%"))
@@ -40,14 +48,8 @@ def buscar_salas_filtros(
     if filtros.estado:
         conditions.append(Endereco.estado == filtros.estado)
 
-    if filtros.bairro:
-        conditions.append(Endereco.bairro.ilike(f"%{filtros.bairro}%"))
-
-    if filtros.cep:
-        conditions.append(Endereco.cep == filtros.cep)
-
-    if filtros.status_ocupacao is not None:
-        conditions.append(Sala.status_ocupacao == filtros.status_ocupacao)
+    if filtros.CEP:
+        conditions.append(Endereco.cep == filtros.CEP)
 
     if filtros.tamanho_min is not None:
         conditions.append(Sala.tamanho >= filtros.tamanho_min)
@@ -60,52 +62,29 @@ def buscar_salas_filtros(
 
     if filtros.preco_max is not None:
         conditions.append(Sala.preco <= filtros.preco_max)
-
+    
     if filtros.tipo is not None:
         conditions.append(Sala.tipo == filtros.tipo)
 
-    if filtros.quartos_min is not None:
-        conditions.append(Sala.quartos >= filtros.quartos_min)
+    query = (
+        select(Sala)
+        .join(Endereco)
+        .where(*conditions)
+    )
 
-    if filtros.banheiros_min is not None:
-        conditions.append(Sala.banheiros >= filtros.banheiros_min)
-
-    if filtros.vagas_garagem_min is not None:
-        conditions.append(Sala.vagas_garagem >= filtros.vagas_garagem_min)
-
-    for campo in [
-        "ar_condicionado",
-        "elevador",
-        "portaria",
-        "mobiliada",
-        "internet",
-        "alarme",
-        "estacionamento",
-    ]:
-        valor = getattr(filtros, campo, None)
-        if valor is True:
-            conditions.append(getattr(Sala, campo).is_(True))
-
-    query = select(Sala).join(Endereco).where(*conditions)
-
-    return list(db.scalars(query))
-
-
+    return db.execute(query).scalars().all()
+    
 def listar_salas_tamanho(db: Session):
     return db.query(Sala).order_by(Sala.tamanho.desc()).all()
 
-
-def listar_salas_preco(db: Session):
+def listar_salas_preco(db : Session):
     return db.query(Sala).order_by(Sala.preco.desc()).all()
 
-
-def listar_salas_preco_limite(db: Session, preco_limite: float):
+def listar_salas_preco_limite(db: Session , preco_limite: float):
     return db.query(Sala).filter(Sala.preco <= preco_limite).all()
 
+def editar_sala(db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch):
 
-def editar_sala(
-    db: Session, id: int, dados_sala_update: sala_schemas.SalaUpdatePatch
-) -> Sala | None:
     sala = buscar_sala_id(db, id)
 
     if not sala:
@@ -116,4 +95,34 @@ def editar_sala(
     for campo, valor in dados.items():
         setattr(sala, campo, valor)
 
+    
+    db.refresh(sala)
+
     return sala
+
+def atualizar_foto(db : Session, id_sala : int, caminho_foto : str):
+    
+    sala = buscar_sala_id(db, id_sala)
+    if not sala:
+        return None
+    sala.fotos = caminho_foto
+    
+    
+    db.refresh(sala)
+    
+    return sala
+
+    
+def remover_sala(db: Session, dados_sala: sala_schemas.SalaResponse):
+
+    sala = buscar_sala_id(db, dados_sala.id)
+    if sala:
+        db.delete(sala)
+        db.commit()
+        return sala
+
+    return None
+
+
+def listar_salas(db: Session):
+    return db.query(Sala).order_by(Sala.status_ocupacao).all()
