@@ -1,12 +1,8 @@
-
+from app.crud import endereco_crud, foto_crud, sala_crud
 from app.models.sala import Sala
-import os
-import uuid
-
-from app.crud import endereco_crud, proprietario_crud, sala_crud, foto_crud
-from app.schemas import endereco_schema, sala_schemas
+from app.schemas import endereco_schemas, sala_schemas
 from app.services.arquivo_service import salvar_imagem
-from fastapi import File, HTTPException, UploadFile
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 
@@ -71,11 +67,10 @@ def editar_sala(
 async def adicionar_foto(
     db: Session,
     id_sala: int,
-    fotos: list[UploadFile],
+    foto: UploadFile,
     id_usuario: int,
 ) -> Sala:
     try:
-
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
         if not sala:
@@ -148,6 +143,7 @@ def remover_sala(db: Session, id_sala: int, id_usuario: int) -> dict:
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )
 
+        foto_crud.removerFotosCompletas(db, id_sala)
         db.delete(sala)
         db.commit()
         return {"message": "Sala removida."}

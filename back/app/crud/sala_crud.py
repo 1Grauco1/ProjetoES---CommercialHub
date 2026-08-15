@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 
 def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate) -> Sala:
-    sala = Sala(**dados_sala.model_dump())
+    dados = dados_sala.model_dump(exclude={"fotos"})
+    sala = Sala(**dados)
 
     db.add(sala)
     db.flush()

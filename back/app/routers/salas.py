@@ -1,4 +1,4 @@
-from app.crud import proprietario_crud, sala_crud
+from app.crud import sala_crud
 from app.dependencies.auth_dependency import get_current_user
 from app.dependencies.db_dependency import get_db
 from app.schemas.endereco_schemas import EnderecoCreate
@@ -40,15 +40,6 @@ async def filtrar(
 async def buscar_publico(dados_salas: SalaFilterSearch, db=Depends(get_db)):
     return sala_service.buscar_salas(db, dados_salas)
 
-@router.patch("/{id}", response_model=SalaResponse)
-async def editar_por_id(
-    id: int,
-    payload: SalaUpdatePayload,
-    db=Depends(get_db),
-    user=Depends(get_current_user),
-):
-    return sala_service.editar_sala(db, id, payload, user.id_pessoa)
-
 @router.get("/{id}", response_model=SalaResponse)
 async def buscar_por_id(id: int, db=Depends(get_db)):
     sala = sala_crud.buscar_sala_id(db, id)
@@ -72,13 +63,6 @@ async def remover_por_id(id: int, db=Depends(get_db), user=Depends(get_current_u
     return sala_service.remover_sala(db, id, user.id)
 
 
-@router.post("/buscar_salas/filtrar/", response_model=list[SalaResponse])
-async def filtrar(
-    dados_salas: SalaFilterSearch, db=Depends(get_db), user=Depends(get_current_user)
-):
-    return sala_service.buscar_salas(db, dados_salas)
-
-
 @router.post("/{id}/foto", response_model=SalaResponse)
 async def adicionar_foto_por_id(
     id: int,
@@ -97,5 +81,5 @@ async def deletar_foto(
     user=Depends(get_current_user),
 ):
     return await sala_service.remover_foto(
-        db=db, id_sala=id_sala, id_foto=id_foto, id_pessoa=user.id_pessoa
+        db=db, id_sala=id_sala, id_foto=id_foto, id_usuario=user.id
     )
