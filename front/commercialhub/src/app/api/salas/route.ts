@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizarFotos } from '@/src/utils/media';
+import { authHeader } from '@/src/lib/auth-header';
 
 const backendUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
 
 export async function POST(request: NextRequest) {
-  const authorization = request.headers.get('authorization');
   const body = await request.json();
   try {
-    const response = await fetch(`${backendUrl}/salas/criar_sala`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(authorization ? { Authorization: authorization } : {}) }, body: JSON.stringify(body), cache: 'no-store' });
+    const response = await fetch(`${backendUrl}/salas/criar_sala`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeader()) }, body: JSON.stringify(body), cache: 'no-store' });
     const data = await response.json().catch(() => ({ message: 'Resposta inválida da API.' }));
     return NextResponse.json(normalizarFotos(data, backendUrl), { status: response.status });
   } catch {
@@ -16,10 +16,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const authorization = request.headers.get('authorization');
   try {
     const response = await fetch(`${backendUrl}/salas/minhas`, {
-      headers: authorization ? { Authorization: authorization } : undefined,
+      headers: await authHeader(),
       cache: 'no-store',
     });
     const data = await response.json().catch(() => ({ message: 'Resposta inválida da API.' }));

@@ -5,7 +5,7 @@ import { normalizarFotos } from '@/src/utils/media';
 import { buscarSalas } from '@/src/services/salas.service';
 import type { Sala } from '@/src/services/salas.service';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export type FotoItem = string | { id?: number; url: string };
 
@@ -17,10 +17,7 @@ export type Perfil = {
 };
 
 async function get<T>(path: string): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  const response = await fetch(path, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
+  const response = await fetch(path, { cache: "no-store" });
   const data = await response.json();
   if (!response.ok)
     throw new Error(

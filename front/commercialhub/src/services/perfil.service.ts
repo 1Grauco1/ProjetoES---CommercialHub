@@ -12,25 +12,14 @@ export type AtualizarPerfil = {
   telefone?: string;
 };
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
-
-function getToken() {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
-}
-
 async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = getToken();
-
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(path, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers ?? {}),
     },
   });
@@ -57,7 +46,7 @@ async function request<T>(
 }
 
 export async function obterPerfil(): Promise<Perfil> {
-  return request<Perfil>('/usuario/me');
+  return request<Perfil>('/api/perfil', { cache: 'no-store' });
 }
 
 export async function atualizarPerfil(
@@ -78,7 +67,7 @@ export async function atualizarPerfil(
     payload.telefone = dados.telefone;
   }
 
-  return request<Perfil>(`/usuario/editar/${idPessoa}`, {
+  return request<Perfil>(`/api/perfil?id=${idPessoa}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
   });
