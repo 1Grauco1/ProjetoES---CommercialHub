@@ -17,10 +17,7 @@ export type Perfil = {
 };
 
 async function get<T>(path: string): Promise<T> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  const response = await fetch(path, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
+  const response = await fetch(path, { cache: "no-store" });
   const data = await response.json();
   if (!response.ok)
     throw new Error(

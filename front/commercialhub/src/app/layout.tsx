@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Poppins } from "next/font/google";
 import { DashboardUIProvider } from "@/src/context/dashboard-ui";
+import AuthProvider from "@/src/components/auth/SessionProvider";
 import AppHeader from "@/src/components/layout/AppHeader";
 import RouteGuard from "@/src/components/layout/RouteGuard";
 import "./globals.css";
@@ -36,8 +37,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <DashboardUIProvider>
-          <AppHeader />
-          <RouteGuard>{children}</RouteGuard>
+          <AuthProvider>
+            <AppHeader />
+            <RouteGuard>{children}</RouteGuard>
+          </AuthProvider>
         </DashboardUIProvider>
       </body>
     </html>

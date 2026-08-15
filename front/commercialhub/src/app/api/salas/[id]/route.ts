@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizarFotos } from '@/src/utils/media';
+import { authHeader } from '@/src/lib/auth-header';
 
 const backendUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
 
@@ -19,11 +20,10 @@ export async function DELETE(request: NextRequest, { params }: RouteContext<'/ap
 }
 
 async function encaminhar(request: NextRequest, url: string, body?: string) {
-  const authorization = request.headers.get('authorization');
   try {
     const response = await fetch(url, {
       method: request.method,
-      headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(authorization ? { Authorization: authorization } : {}) },
+      headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(await authHeader()) },
       ...(body ? { body } : {}),
       cache: 'no-store',
     });

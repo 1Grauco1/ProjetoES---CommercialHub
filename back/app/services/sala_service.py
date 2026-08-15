@@ -1,10 +1,9 @@
-from fastapi import HTTPException, UploadFile
-from sqlalchemy.orm import Session
-
 from app.crud import endereco_crud, foto_crud, sala_crud
 from app.models.sala import Sala
 from app.schemas import endereco_schemas, sala_schemas
-from app.services.arquivo_service import remover_imagem, salvar_imagem
+from app.services.arquivo_service import salvar_imagem
+from fastapi import HTTPException, UploadFile
+from sqlalchemy.orm import Session
 
 
 def adicionar_sala(
@@ -68,7 +67,7 @@ def editar_sala(
 async def adicionar_foto(
     db: Session,
     id_sala: int,
-    fotos: list[UploadFile],
+    foto: UploadFile,
     id_usuario: int,
 ) -> Sala:
     caminhos_salvos: list[str] = []
@@ -152,12 +151,6 @@ def remover_sala(db: Session, id_sala: int, id_usuario: int) -> dict:
         if sala.id_usuario != id_usuario:
             raise HTTPException(
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
-            )
-
-        if sala.contratos:
-            raise HTTPException(
-                status_code=400,
-                detail="Sala possui contratos vinculados e não pode ser removida.",
             )
 
         foto_crud.removerFotosCompletas(db, id_sala)

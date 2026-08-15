@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { formatCurrency } from "@/src/utils/format";import { useSala } from "@/src/hooks/use-salas";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { salaIdFromSlug } from "@/src/utils/slug";
 import type { FotoItem } from "@/src/services/salas.service";
 
@@ -64,6 +65,8 @@ function AnuncioContent() {
   }
 
   const { sala, loading, error } = useSala(salaId ? String(salaId) : "0");
+
+  const { status: authStatus } = useSession();
 
   const [fotoSelecionada, setFotoSelecionada] = useState<string | null>(null);
 
@@ -141,11 +144,7 @@ function AnuncioContent() {
   const fotoExibida = fotoSelecionada || listaFotos[0];
 
   const redirecionarWhatsApp = (tipo: "alugar" | "visita") => {
-    if (typeof window === "undefined") return;
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
+    if (authStatus !== "authenticated") {
       router.push(`/login?redirect=${encodeURIComponent(`/anuncio/${slug}`)}`);
       return;
     }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { authService } from '@/src/services/auth.service';
 
 export function useAuth() {
@@ -13,12 +14,18 @@ export function useAuth() {
         setError(null);
         setLoading(true);
         try {
-            const resp = await authService.login({ username, password });
-            const token = resp.access_token ?? resp.token;
-            if (!token) throw new Error('Token não retornado');
-            if (typeof window !== 'undefined') localStorage.setItem('token', token);
-            router.push('/dashboard');
-            return resp;
+            const result = await signIn('credentials', {
+                username,
+                password,
+                redirect: false,
+            });
+            if (result?.error) throw new Error(result.error);
+            const redirect =
+                typeof window !== 'undefined'
+                    ? new URLSearchParams(window.location.search).get('redirect') ?? '/dashboard'
+                    : '/dashboard';
+            router.push(redirect);
+            return result;
         } catch (err) {
             setError('Falha no login');
             throw err;

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { Building2, FileText, LayoutDashboard, LogOut, WalletCards, X } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useDashboardUI } from '@/src/context/dashboard-ui';
 
 const links = [
@@ -14,13 +15,10 @@ const links = [
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { open, closeSidebar } = useDashboardUI();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.dispatchEvent(new Event('auth-change'));
-    router.push('/');
+    signOut({ callbackUrl: '/' });
   };
 
   const navigation = (

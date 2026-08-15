@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-
 from app.crud import sala_crud
 from app.dependencies.auth_dependency import get_current_user
 from app.dependencies.db_dependency import get_db
@@ -33,17 +31,6 @@ async def minhas(db=Depends(get_db), user=Depends(get_current_user)):
 @router.post("/buscar", response_model=list[SalaResponse])
 async def buscar_publico(dados_salas: SalaFilterSearch, db=Depends(get_db)):
     return sala_service.buscar_salas(db, dados_salas)
-
-
-@router.patch("/{id}", response_model=SalaResponse)
-async def editar_por_id(
-    id: int,
-    payload: SalaUpdatePayload,
-    db=Depends(get_db),
-    user=Depends(get_current_user),
-):
-    return sala_service.editar_sala(db, id, payload, user.id)
-
 
 @router.get("/{id}", response_model=SalaResponse)
 async def buscar_por_id(id: int, db=Depends(get_db)):

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from app.models.foto import Foto
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 

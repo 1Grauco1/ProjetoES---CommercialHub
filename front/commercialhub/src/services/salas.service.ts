@@ -97,14 +97,8 @@ export type SalaFilterSearch = {
 };
 
 function authHeaders(json = true) {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token")
-      : null;
-
   return {
     ...(json ? { "Content-Type": "application/json" } : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
