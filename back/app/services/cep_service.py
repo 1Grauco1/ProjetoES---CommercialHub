@@ -1,7 +1,6 @@
 import httpx
 
-
-async def buscar_cep(cep: str) -> dict | None:
+async def buscar_cep(cep: str):
     cep = cep.replace("-", "").strip()
 
     url = f"https://viacep.com.br/ws/{cep}/json/"

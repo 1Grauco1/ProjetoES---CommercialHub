@@ -11,18 +11,18 @@ export default function Header() {
         <>
             <header className="sticky top-0 z-40 w-full h-17 md:h-19 bg-[#D9D9D9]/95 border-b border-[#1B263B] px-4 sm:px-6 md:px-20 lg:px-30 py-2 flex items-center justify-between backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                    <img src="/logo.png" alt="Logo" className="h-[40px] md:h-[46px] w-auto" />
+                    <img src="/logo.svg" alt="Logo" className="h-[40px] md:h-[46px] w-auto" />
                 </div>
 
                 <nav className="hidden xl:flex items-center gap-8 lg:gap-10">
                     <a
-                        href="/login"
+                        href="#proprietario"
                         className="text-[#1B263B] font-semibold text-lg hover:text-[#D35400] transition-colors"
                     >
                         Propietario
                     </a>
                     <a
-                        href="/busca-sala"
+                        href="#empreendedor"
                         className="text-[#1B263B] font-semibold text-lg hover:text-[#D35400] transition-colors"
                     >
                         Empreendedor

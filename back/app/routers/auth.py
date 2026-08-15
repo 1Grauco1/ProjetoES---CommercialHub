@@ -1,6 +1,6 @@
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.dependencies.db_dependency import get_db
+from app.dependencies.db_dependencie import get_db
 from app.schemas import auth_schemas, usuario_schemas
 from app.services import auth_service, pessoa_service
 from fastapi import APIRouter, Depends

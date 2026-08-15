@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { Montserrat, Poppins } from "next/font/google";
-import { DashboardUIProvider } from "@/src/context/dashboard-ui";
-import AppHeader from "@/src/components/layout/AppHeader";
-import RouteGuard from "@/src/components/layout/RouteGuard";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -34,12 +31,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${montserrat.variable} ${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <DashboardUIProvider>
-          <AppHeader />
-          <RouteGuard>{children}</RouteGuard>
-        </DashboardUIProvider>
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

@@ -1,15 +1,9 @@
 "use client";
 
 import DashboardShell from "@/src/components/dashboard/DashboardShell";
-import { atualizarSala, deletarFotoApi, type FotoItem } from "@/src/services/salas.service";
-import { useSala } from "@/src/hooks/use-salas";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ImagePlus,
-  LoaderCircle,
-  X,
-} from "lucide-react";
+import { atualizarSala } from "@/src/lib/salas-api";
+import { useSala } from "@/src/lib/use-salas";
+import { ImagePlus, LoaderCircle, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
@@ -20,38 +14,12 @@ export default function EditarSalaPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { sala, loading, error } = useSala(params.id);
-
   const [form, setForm] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<Array<{ id?: number; url: string }>>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [fotosOriginais, setFotosOriginais] = useState<Array<{ id?: number; url: string }>>([]);
-  const [fotosRemovidas, setFotosRemovidas] = useState<number[]>([]);
-
-  useEffect(() => {
-    if (sala?.fotos) {
-      const fotosArray = Array.isArray(sala.fotos) ? sala.fotos : [sala.fotos];
-
-      const fotosIniciais = fotosArray
-        .map((foto: FotoItem) => {
-          if (typeof foto === "object" && foto !== null) {
-            return { id: foto.id, url: foto.url };
-          }
-
-          return { url: String(foto) };
-        })
-        .filter((foto) => Boolean(foto.url)) as Array<{ id?: number; url: string }>;
-
-      setFotosOriginais(fotosIniciais);
-      setPreviews(fotosIniciais);
-      setImages([]);
-      setFotosRemovidas([]);
-    }
-  }, [sala]);
-
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   useEffect(() => {
     if (sala)
       queueMicrotask(() =>
@@ -103,100 +71,18 @@ export default function EditarSalaPage() {
         estado: endereco.uf ?? current.estado,
       }));
     } catch {
-      setMessage(
-        "Não foi possível consultar o CEP. Preencha o endereço manualmente.",
-      );
+      setMessage("Não foi possível consultar o CEP. Preencha o endereço manualmente.");
     } finally {
       setLoadingCep(false);
     }
   };
-
-  const pickImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-
-    const validFiles: File[] = [];
-    const newPreviews: Array<{ id?: number; url: string }> = [];
-
-    for (const file of files) {
-      if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
-        setMessage("Escolha apenas imagens de até 5 MB.");
-        return;
-      }
-
-      validFiles.push(file);
-      newPreviews.push({ url: URL.createObjectURL(file) });
-    }
-
-    setMessage(null);
-
-   setImages((prev) => [...(prev || []), ...validFiles]);
-   setPreviews((prev) => [...(prev || []), ...newPreviews]);
-
-    // Se ainda não houver uma imagem sendo exibida,
-    // começa pela primeira imagem adicionada.
-    if (previews.length === 0) {
-      setCurrentIndex(0);
-    }
-
-    // Permite selecionar novamente o mesmo arquivo.
-    event.target.value = "";
-  };
-
- const removeImage = (indexToRemove: number) => {
-  const previewToRemove = previews?.[indexToRemove];
-
-  if (!previewToRemove) return;
-
-  const fotoOriginal = fotosOriginais.find((foto) => foto.url === previewToRemove.url);
-  if (fotoOriginal?.id) {
-    setFotosRemovidas((prev) => (prev.includes(fotoOriginal.id as number) ? prev : [...prev, fotoOriginal.id as number]));
-  }
-
-  if (previewToRemove.url.startsWith("blob:")) {
-    URL.revokeObjectURL(previewToRemove.url);
-
-    const blobPreviews = previews.filter((p) => p.url.startsWith("blob:"));
-    const blobIndex = blobPreviews.findIndex((p) => p.url === previewToRemove.url);
-
-    if (blobIndex !== -1) {
-      setImages((prev) => prev.filter((_, index) => index !== blobIndex));
-    }
-  }
-
-  setPreviews((prev) => prev.filter((_, index) => index !== indexToRemove));
-
-  if (currentIndex >= (previews?.length || 0) - 1) {
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-  }
-};
-
-  const nextImage = () => {
-    if (previews.length > 0) {
-      setCurrentIndex((prev) => (prev + 1) % previews.length);
-    }
-  };
-
-  const prevImage = () => {
-    if (previews.length > 0) {
-      setCurrentIndex((prev) => (prev - 1 + previews.length) % previews.length);
-    }
-  };
-
   const submit = async (event: FormEvent) => {
-  event.preventDefault();
-  if (!sala) return;
-  setSaving(true);
-  setMessage(null);
-
-  try {
-    for (const fotoId of fotosRemovidas) {
-      await deletarFotoApi(sala.id, fotoId);
-    }
-
-    await atualizarSala(
-      sala.id,
-      {
+    event.preventDefault();
+    if (!sala) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      await atualizarSala(sala.id, {
         dados_sala: {
           titulo: form.titulo,
           descricao: form.descricao,
@@ -204,6 +90,7 @@ export default function EditarSalaPage() {
           tamanho: Number(form.tamanho),
           preco: Number(form.preco),
           status_ocupacao: form.status_ocupacao as typeof sala.status_ocupacao,
+    
         },
         dados_endereco: {
           rua: form.rua,
@@ -213,20 +100,18 @@ export default function EditarSalaPage() {
           estado: form.estado.toUpperCase(),
           cep: form.cep,
         },
-      },
-      images.length > 0 ? images : undefined,
-    );
-    router.push("/minhas-salas");
-  } catch (error) {
-    setMessage(
-      error instanceof Error
-        ? error.message
-        : "Não foi possível atualizar a sala.",
-    );
-  } finally {
-    setSaving(false);
-  }
-};
+      }, image ?? undefined);
+      router.push("/minhas-salas");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível atualizar a sala.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
   if (loading)
     return (
       <DashboardShell>
@@ -247,80 +132,35 @@ export default function EditarSalaPage() {
         <h1 className="text-3xl font-bold">Editar sala #{sala.id}</h1>
         <p className="mt-1 text-slate-500">Atualize os dados do seu anúncio.</p>
         <form onSubmit={submit} className="mt-8 space-y-6">
-          <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-            <h2 className="text-xl font-bold">Imagem do imóvel</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Adicione imagens para destacar o seu anúncio.
-            </p>
-
+          <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h2 className="text-xl font-bold">Imagem do anúncio</h2>
+            <p className="mt-1 text-sm text-slate-500">Envie uma nova imagem para substituir a imagem atual.</p>
             <div className="mt-5 flex flex-col gap-5 sm:flex-row">
-              <div className="relative h-40 w-full overflow-hidden rounded-xl bg-slate-100 sm:w-56">
-                {previews.length > 0 ? (
-                  <>
-                    <img
-                      src={previews[currentIndex]?.url}
-                      alt={`Prévia do imóvel ${currentIndex + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-
-                    {previews.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={prevImage}
-                          className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={nextImage}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70 transition-colors"
-                        >
-                          <ChevronRight size={16} />
-                        </button>
-
-                        <span className="absolute bottom-1 right-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
-                          {currentIndex + 1} / {previews.length}
-                        </span>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className="grid h-full w-full place-items-center">
-                    <ImagePlus className="text-slate-400" size={36} />
-                  </div>
-                )}
+              <div className="grid h-40 w-full place-items-center overflow-hidden rounded-xl bg-slate-100 sm:w-56">
+                {preview || sala.fotos ? <img src={preview ?? sala.fotos ?? ""} alt="Imagem da sala" className="h-full w-full object-cover" /> : <ImagePlus className="text-slate-400" size={36} />}
               </div>
-
-              <div className="flex flex-col justify-center">
-                <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#D35400] px-5 py-3 text-sm font-semibold text-[#D35400] hover:bg-orange-50 transition-colors">
+              <div className="flex flex-col justify-center gap-3">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-[#D35400] px-5 py-3 text-sm font-semibold text-[#D35400] hover:bg-orange-50">
                   <ImagePlus size={18} className="mr-2" />
-                  Enviar imagem
+                  {image ? "Trocar imagem escolhida" : "Escolher nova imagem"}
                   <input
                     type="file"
-                    multiple
                     accept="image/png,image/jpeg,image/webp"
-                    onChange={pickImage}
                     className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+                        setMessage("Escolha uma imagem PNG, JPG ou WEBP de até 5 MB.");
+                        return;
+                      }
+                      setMessage(null);
+                      setImage(file);
+                      setPreview(URL.createObjectURL(file));
+                    }}
                   />
                 </label>
-
-                <p className="mt-2 text-xs text-slate-400">
-                  PNG, JPG ou WEBP — máximo de 5 MB por arquivo
-                </p>
-
-                {previews.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => removeImage(currentIndex)}
-                    className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700"
-                  >
-                    <X size={14} />
-                    Remover imagem atual
-                  </button>
-                )}
+                {image && <button type="button" onClick={() => { setImage(null); setPreview(null); }} className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-600"><X size={16} />Remover imagem escolhida</button>}
               </div>
             </div>
           </section>

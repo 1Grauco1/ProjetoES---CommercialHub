@@ -1,30 +1,31 @@
-from pydantic import BaseModel, ConfigDict, Field
-
-EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+from app.models.usuario import NivelAcesso
+from pydantic import BaseModel
 
 
 class UsuarioCreate(BaseModel):
     id_pessoa: int
     usuario: str
-    senha: str = Field(min_length=8)
+    senha: str
+    nivel_acesso: NivelAcesso
 
 
 class UsuarioResponse(BaseModel):
     id: int
     id_pessoa: int
     usuario: str
-
-    model_config = ConfigDict(from_attributes=True)
+    nivel_acesso: NivelAcesso
 
 
 class CadastroUsuario(BaseModel):
     nome: str
-    email: str = Field(pattern=EMAIL_REGEX)
-    telefone: str | None = None
-    senha: str = Field(min_length=8)
+    email: str
+    telefone: str
+    senha: str
+    nivel_acesso: NivelAcesso
 
 
 class VerUsuario(BaseModel):
     nome: str
-    email: str = Field(pattern=EMAIL_REGEX)
-    telefone: str | None = None
+    email: str
+    telefone: str
+    nivel_acesso: NivelAcesso

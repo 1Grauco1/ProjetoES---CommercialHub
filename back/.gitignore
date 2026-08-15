@@ -34,9 +34,4 @@ pip-delete-this-directory.txt
 
 # Sistema Operacional
 .DS_Store
-Thumbs.db
-
-#images
-*.png
-*.jpg
-*.webp
+Thumbs.db   
