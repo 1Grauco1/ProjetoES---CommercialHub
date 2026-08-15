@@ -45,10 +45,12 @@ export default function EditarSalaPage() {
         })
         .filter((foto) => Boolean(foto.url)) as Array<{ id?: number; url: string }>;
 
-      setFotosOriginais(fotosIniciais);
-      setPreviews(fotosIniciais);
-      setImages([]);
-      setFotosRemovidas([]);
+      queueMicrotask(() => {
+        setFotosOriginais(fotosIniciais);
+        setPreviews(fotosIniciais);
+        setImages([]);
+        setFotosRemovidas([]);
+      });
     }
   }, [sala]);
 
@@ -87,7 +89,7 @@ export default function EditarSalaPage() {
     setLoadingCep(true);
     setMessage(null);
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const response = await fetch(`/api/cep/${cep}`);
       const endereco = await response.json();
 
       if (!response.ok || endereco.erro) {

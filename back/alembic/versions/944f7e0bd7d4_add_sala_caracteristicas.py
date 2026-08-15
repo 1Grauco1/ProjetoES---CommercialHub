@@ -1,4 +1,4 @@
-"""Add new sala characteristic columns."""
+"""Add sala characteristic columns (quartos, banheiros, vagas, comodidades)."""
 
 from alembic import op
 import sqlalchemy as sa
@@ -11,46 +11,16 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "salas",
-        sa.Column("quartos", sa.Integer(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("banheiros", sa.Integer(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("vagas_garagem", sa.Integer(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("ar_condicionado", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("elevador", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("portaria", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("mobiliada", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("internet", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("alarme", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
-    op.add_column(
-        "salas",
-        sa.Column("estacionamento", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-    )
+    op.add_column("salas", sa.Column("quartos", sa.Integer(), nullable=False))
+    op.add_column("salas", sa.Column("banheiros", sa.Integer(), nullable=False))
+    op.add_column("salas", sa.Column("vagas_garagem", sa.Integer(), nullable=False))
+    op.add_column("salas", sa.Column("ar_condicionado", sa.Boolean(), nullable=False))
+    op.add_column("salas", sa.Column("elevador", sa.Boolean(), nullable=False))
+    op.add_column("salas", sa.Column("portaria", sa.Boolean(), nullable=False))
+    op.add_column("salas", sa.Column("mobiliada", sa.Boolean(), nullable=False))
+    op.add_column("salas", sa.Column("internet", sa.Boolean(), nullable=False))
+    op.add_column("salas", sa.Column("alarme", sa.Boolean(), nullable=False))
+    op.add_column("salas", sa.Column("estacionamento", sa.Boolean(), nullable=False))
 
 
 def downgrade() -> None:

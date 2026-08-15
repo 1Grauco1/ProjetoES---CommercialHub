@@ -4,12 +4,18 @@ import { useEffect, useState } from "react";
 
 type FotoItem = string | { id?: number; url: string };
 
+type SalaDebug = {
+  id: number;
+  titulo: string;
+  fotos?: FotoItem[] | null;
+};
+
 function urlDaFoto(foto: FotoItem): string {
   return typeof foto === "string" ? foto : foto.url ?? "";
 }
 
 export default function DebugSalaPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<SalaDebug | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {

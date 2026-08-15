@@ -1,9 +1,10 @@
+from fastapi import HTTPException, UploadFile
+from sqlalchemy.orm import Session
+
 from app.crud import endereco_crud, foto_crud, sala_crud
 from app.models.sala import Sala
 from app.schemas import endereco_schemas, sala_schemas
-from app.services.arquivo_service import salvar_imagem
-from fastapi import File, HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from app.services.arquivo_service import remover_imagem, salvar_imagem
 
 
 def adicionar_sala(
@@ -70,8 +71,8 @@ async def adicionar_foto(
     fotos: list[UploadFile],
     id_usuario: int,
 ) -> Sala:
+    caminhos_salvos: list[str] = []
     try:
-
         sala = sala_crud.buscar_sala_id(db, id_sala)
 
         if not sala:
@@ -84,6 +85,7 @@ async def adicionar_foto(
 
         for foto in fotos:
             caminho = await salvar_imagem(foto)
+            caminhos_salvos.append(caminho)
             foto_crud.adicionarFoto(db, id_sala, caminho)
 
         db.commit()
@@ -92,11 +94,18 @@ async def adicionar_foto(
         return sala
 
     except HTTPException:
+        _limpar_arquivos_orfãos(caminhos_salvos)
         db.rollback()
         raise
     except Exception:
+        _limpar_arquivos_orfãos(caminhos_salvos)
         db.rollback()
         raise
+
+
+def _limpar_arquivos_orfãos(caminhos: list[str]) -> None:
+    for caminho in caminhos:
+        remover_imagem(caminho)
 
 
 async def remover_foto(
@@ -145,6 +154,12 @@ def remover_sala(db: Session, id_sala: int, id_usuario: int) -> dict:
                 status_code=401, detail="Usuario não autorizado para realizar ação!"
             )
 
+        if sala.contratos:
+            raise HTTPException(
+                status_code=400,
+                detail="Sala possui contratos vinculados e não pode ser removida.",
+            )
+
         foto_crud.removerFotosCompletas(db, id_sala)
         db.delete(sala)
         db.commit()
@@ -158,9 +173,7 @@ def remover_sala(db: Session, id_sala: int, id_usuario: int) -> dict:
         raise
 
 
-def buscar_salas(
-    db: Session, dados_sala: sala_schemas.SalaFilterSearch
-) -> list[Sala]:
+def buscar_salas(db: Session, dados_sala: sala_schemas.SalaFilterSearch) -> list[Sala]:
     try:
         return sala_crud.buscar_salas_filtros(db, dados_sala)
     except Exception:

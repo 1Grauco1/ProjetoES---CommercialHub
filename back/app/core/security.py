@@ -1,8 +1,9 @@
-from app.core.config import ALGORITHM, SECRET_KEY
-from pwdlib import PasswordHash
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
+from pwdlib import PasswordHash
+
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 
 password_hash = PasswordHash.recommended()
 
@@ -21,10 +22,12 @@ def verificar_senha(senha, hash):
 def criar_access_token(data: dict):
     payload = data.copy()
 
-    payload["exp"] = datetime.now(timezone.utc) + timedelta(hours=6)
+    agora = datetime.now(UTC)
+    payload["iat"] = agora
+    payload["exp"] = agora + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def verificar_access_token(token: str):
-    return jwt.decode(token, SECRET_KEY,algorithms=[ALGORITHM])
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

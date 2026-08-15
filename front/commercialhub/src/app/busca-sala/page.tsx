@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -176,6 +176,7 @@ function BuscaSalaPageContent() {
   const { salas, loading, error } = useSalasPublicas();
 
   const [searchName, setSearchName] = useState(termoInicial);
+  const [termoAnterior, setTermoAnterior] = useState(termoInicial);
   const [searchLocation, setSearchLocation] = useState("");
   const [precoMin, setPrecoMin] = useState("");
   const [precoMax, setPrecoMax] = useState("");
@@ -185,9 +186,10 @@ function BuscaSalaPageContent() {
   const [sortBy, setSortBy] = useState("Relevância");
   const [showSort, setShowSort] = useState(false);
 
-  useEffect(() => {
+  if (termoInicial !== termoAnterior) {
+    setTermoAnterior(termoInicial);
     if (termoInicial) setSearchName(termoInicial);
-  }, [termoInicial]);
+  }
 
   const toggleChar = (key: string) => {
     setSelectedChars((prev) =>

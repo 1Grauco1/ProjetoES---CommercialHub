@@ -1,8 +1,9 @@
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.models.base import Base
 from app.models.contrato import Contrato
 from app.models.sala import Sala
-from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Usuario(Base):
@@ -18,8 +19,8 @@ class Usuario(Base):
 
     pessoa = relationship("Pessoa", back_populates="usuario")
 
-    salas: Mapped[list["Sala"]] = relationship("Sala", back_populates="usuario")
+    salas: Mapped[list[Sala]] = relationship("Sala", back_populates="usuario")
 
-    contratos: Mapped[list["Contrato"]] = relationship(
+    contratos: Mapped[list[Contrato]] = relationship(
         "Contrato", back_populates="usuario"
     )

@@ -22,9 +22,3 @@ class CadastroUsuario(BaseModel):
     email: str = Field(pattern=EMAIL_REGEX)
     telefone: str | None = None
     senha: str = Field(min_length=8)
-
-
-class VerUsuario(BaseModel):
-    nome: str
-    email: str = Field(pattern=EMAIL_REGEX)
-    telefone: str | None = None

@@ -1,3 +1,5 @@
+type FotoItem = Record<string, unknown>;
+
 export function urlDaFoto(item: unknown, backendUrl: string): string {
   if (!item) return "";
 
@@ -5,8 +7,9 @@ export function urlDaFoto(item: unknown, backendUrl: string): string {
   if (typeof item === "string") {
     caminhoRelativo = item;
   } else if (typeof item === "object" && item !== null) {
-    const obj = item as Record<string, any>;
-    caminhoRelativo = obj.caminho || obj.url || "";
+    const obj = item as FotoItem;
+    const caminho = obj.caminho ?? obj.url;
+    caminhoRelativo = typeof caminho === "string" ? caminho : "";
   }
 
   if (!caminhoRelativo) return "";
@@ -22,7 +25,7 @@ export function urlDaFoto(item: unknown, backendUrl: string): string {
   return `${backendUrl}${caminhoFormatado}`;
 }
 
-function normalizarFotoItem(item: unknown, backendUrl: string) {
+function normalizarFotoItem(item: unknown, backendUrl: string): unknown {
   if (!item) return item;
 
   if (typeof item === "string") {
@@ -30,13 +33,13 @@ function normalizarFotoItem(item: unknown, backendUrl: string) {
   }
 
   if (typeof item === "object" && item !== null) {
-    const obj = item as Record<string, any>;
+    const obj = item as FotoItem;
     const url = urlDaFoto(item, backendUrl);
 
     if (!url) return item;
 
     return {
-      id: obj.id,
+      id: typeof obj.id === "number" ? obj.id : undefined,
       url,
     };
   }
@@ -45,22 +48,26 @@ function normalizarFotoItem(item: unknown, backendUrl: string) {
 }
 
 export function normalizarFotos<T>(data: T, backendUrl: string): T {
-  const normalizarItem = (item: any) => {
+  const normalizarItem = (item: unknown): unknown => {
     if (!item) return item;
 
-    if (Array.isArray(item.fotos)) {
+    if (typeof item !== "object") return item;
+
+    const obj = item as FotoItem;
+
+    if (Array.isArray(obj.fotos)) {
       return {
-        ...item,
-        fotos: item.fotos
-          .map((fotoItem: any) => normalizarFotoItem(fotoItem, backendUrl))
+        ...obj,
+        fotos: obj.fotos
+          .map((fotoItem) => normalizarFotoItem(fotoItem, backendUrl))
           .filter(Boolean),
       };
     }
 
-    if (item.fotos) {
+    if (obj.fotos) {
       return {
-        ...item,
-        fotos: [normalizarFotoItem(item.fotos, backendUrl)].filter(Boolean),
+        ...obj,
+        fotos: [normalizarFotoItem(obj.fotos, backendUrl)].filter(Boolean),
       };
     }
 

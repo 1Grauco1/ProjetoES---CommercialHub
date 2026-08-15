@@ -1,7 +1,8 @@
-from app.models import Endereco, Sala
-from app.schemas import sala_schemas
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
+
+from app.models import Endereco, Sala
+from app.schemas import sala_schemas
 
 
 def criar_sala(db: Session, dados_sala: sala_schemas.SalaCreate) -> Sala:
@@ -18,9 +19,7 @@ def buscar_sala_id(db: Session, id: int) -> Sala | None:
 
 
 def listar_salas_usuario(db: Session, id_usuario: int) -> list[Sala]:
-    return list(
-        db.scalars(select(Sala).where(Sala.id_usuario == id_usuario))
-    )
+    return list(db.scalars(select(Sala).where(Sala.id_usuario == id_usuario)))
 
 
 def buscar_salas_filtros(
@@ -30,9 +29,7 @@ def buscar_salas_filtros(
 
     if filtros.termo:
         termo = f"%{filtros.termo}%"
-        conditions.append(
-            or_(Sala.titulo.ilike(termo), Sala.descricao.ilike(termo))
-        )
+        conditions.append(or_(Sala.titulo.ilike(termo), Sala.descricao.ilike(termo)))
 
     if filtros.cidade:
         conditions.append(Endereco.cidade.ilike(f"%{filtros.cidade}%"))
@@ -89,18 +86,6 @@ def buscar_salas_filtros(
     query = select(Sala).join(Endereco).where(*conditions)
 
     return list(db.scalars(query))
-
-
-def listar_salas_tamanho(db: Session):
-    return db.query(Sala).order_by(Sala.tamanho.desc()).all()
-
-
-def listar_salas_preco(db: Session):
-    return db.query(Sala).order_by(Sala.preco.desc()).all()
-
-
-def listar_salas_preco_limite(db: Session, preco_limite: float):
-    return db.query(Sala).filter(Sala.preco <= preco_limite).all()
 
 
 def editar_sala(

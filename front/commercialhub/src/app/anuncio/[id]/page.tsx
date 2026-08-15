@@ -24,6 +24,7 @@ import {
 import { formatCurrency } from "@/src/utils/format";import { useSala } from "@/src/hooks/use-salas";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { salaIdFromSlug } from "@/src/utils/slug";
+import type { FotoItem } from "@/src/services/salas.service";
 
 
 const API_URL = "http://localhost:8000";
@@ -111,9 +112,11 @@ function AnuncioContent() {
 
   const listaFotos: string[] = Array.isArray(sala.fotos)
     ? sala.fotos
-        .map((item: any) => {
+        .map((item: FotoItem) => {
           let caminhoRelativo =
-            typeof item === "string" ? item : item?.caminho || item?.url || "";
+            typeof item === "string"
+              ? item
+              : (item as { caminho?: string }).caminho || item?.url || "";
 
           if (!caminhoRelativo) return "";
 

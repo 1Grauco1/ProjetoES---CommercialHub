@@ -1,10 +1,13 @@
-from app.models.endereco import Endereco
-from app.schemas import endereco_schemas
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.models.endereco import Endereco
+from app.schemas import endereco_schemas
 
-def criar_endereco(db: Session, dados_endereco: endereco_schemas.EnderecoCreate) -> Endereco:
+
+def criar_endereco(
+    db: Session, dados_endereco: endereco_schemas.EnderecoCreate
+) -> Endereco:
     endereco = Endereco(
         rua=dados_endereco.rua,
         numero=dados_endereco.numero,
@@ -25,7 +28,9 @@ def buscar_endereco(db: Session, id_endereco: int) -> Endereco | None:
 
 
 def editar_endereco(
-    db: Session, id_endereco: int, dados_endereco_update: endereco_schemas.EnderecoUpdate
+    db: Session,
+    id_endereco: int,
+    dados_endereco_update: endereco_schemas.EnderecoUpdate,
 ) -> Endereco | None:
     endereco = buscar_endereco(db, id_endereco)
 

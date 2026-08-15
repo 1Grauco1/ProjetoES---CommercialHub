@@ -1,3 +1,5 @@
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+
 from app.crud import sala_crud
 from app.dependencies.auth_dependency import get_current_user
 from app.dependencies.db_dependency import get_db
@@ -9,7 +11,6 @@ from app.schemas.sala_schemas import (
     SalaUpdatePayload,
 )
 from app.services import sala_service
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 router = APIRouter(prefix="/salas", tags=["salas"])
 
@@ -27,13 +28,6 @@ async def criar(
 @router.get("/minhas", response_model=list[SalaResponse])
 async def minhas(db=Depends(get_db), user=Depends(get_current_user)):
     return sala_crud.listar_salas_usuario(db, user.id)
-
-
-@router.post("/buscar_salas/filtrar/", response_model=list[SalaResponse])
-async def filtrar(
-    dados_salas: SalaFilterSearch, db=Depends(get_db), user=Depends(get_current_user)
-):
-    return sala_service.buscar_salas(db, dados_salas)
 
 
 @router.post("/buscar", response_model=list[SalaResponse])
