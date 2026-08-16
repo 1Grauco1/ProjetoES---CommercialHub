@@ -1,9 +1,10 @@
+from fastapi import HTTPException, UploadFile
+from sqlalchemy.orm import Session
+
 from app.crud import endereco_crud, foto_crud, sala_crud
 from app.models.sala import Sala
 from app.schemas import endereco_schemas, sala_schemas
-from app.services.arquivo_service import salvar_imagem
-from fastapi import HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from app.services.arquivo_service import remover_imagem, salvar_imagem
 
 
 def adicionar_sala(
@@ -67,7 +68,7 @@ def editar_sala(
 async def adicionar_foto(
     db: Session,
     id_sala: int,
-    foto: UploadFile,
+    fotos: list[UploadFile],
     id_usuario: int,
 ) -> Sala:
     caminhos_salvos: list[str] = []

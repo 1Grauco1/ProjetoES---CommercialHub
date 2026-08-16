@@ -1,13 +1,10 @@
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+
 from app.crud import sala_crud
 from app.dependencies.auth_dependency import get_current_user
 from app.dependencies.db_dependency import get_db
 from app.schemas.endereco_schemas import EnderecoCreate
-from app.schemas.sala_schemas import (
-    SalaCreate,
-    SalaFilterSearch,
-    SalaResponse,
-    SalaUpdatePayload,
-)
+from app.schemas.sala_schemas import SalaCreate, SalaFilterSearch, SalaResponse
 from app.services import sala_service
 
 router = APIRouter(prefix="/salas", tags=["salas"])
@@ -31,6 +28,7 @@ async def minhas(db=Depends(get_db), user=Depends(get_current_user)):
 @router.post("/buscar", response_model=list[SalaResponse])
 async def buscar_publico(dados_salas: SalaFilterSearch, db=Depends(get_db)):
     return sala_service.buscar_salas(db, dados_salas)
+
 
 @router.get("/{id}", response_model=SalaResponse)
 async def buscar_por_id(id: int, db=Depends(get_db)):
