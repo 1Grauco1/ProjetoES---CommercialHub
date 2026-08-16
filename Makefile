@@ -1,8 +1,13 @@
 .PHONY: dev back front kill migrate lint format
 
 kill:
-	@pkill -f "uvicorn app.main:app" 2>/dev/null; \
-	pkill -f "next dev" 2>/dev/null; \
+	@pkill -9 -f "uvicorn app[.]main:app" 2>/dev/null; \
+	pkill -9 -f "npm [r]un dev" 2>/dev/null; \
+	pkill -9 -f "next[-]server" 2>/dev/null; \
+	pkill -9 -f "next [d]ev" 2>/dev/null; \
+	pkill -9 -f "make [d]ev" 2>/dev/null; \
+	pkill -9 -f "make [b]ack" 2>/dev/null; \
+	pkill -9 -f "make [f]ront" 2>/dev/null; \
 	echo "Stopped back and front instances"
 
 migrate:
