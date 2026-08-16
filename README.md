@@ -13,3 +13,6 @@ lint / format:
 
 se vc não tiver o pacote make
 pesquise como baixa no seu OS
+
+windows (sem instalar make):
+  use make.bat com os mesmos comandos, ex: make.bat dev, make.bat back, make.bat kill
