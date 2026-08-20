@@ -15,18 +15,6 @@ export default function Header() {
                 </div>
 
                 <nav className="hidden xl:flex items-center gap-8 lg:gap-10">
-                    <a
-                        href="/login"
-                        className="text-[#1B263B] font-semibold text-lg hover:text-[#D35400] transition-colors"
-                    >
-                        Propietario
-                    </a>
-                    <a
-                        href="/busca-sala"
-                        className="text-[#1B263B] font-semibold text-lg hover:text-[#D35400] transition-colors"
-                    >
-                        Empreendedor
-                    </a>
 
                     <Link
                         href="/login"
