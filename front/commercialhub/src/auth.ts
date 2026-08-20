@@ -23,6 +23,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!username || !password) return null;
 
+        console.error("[AUTH] BACKEND_URL:", BACKEND_URL);
+
         const params = new URLSearchParams({
           username: String(username),
           password: String(password),
@@ -36,7 +38,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           body: params.toString(),
         });
 
-        if (!loginResponse.ok) return null;
+        if (!loginResponse.ok) {
+          console.error("[AUTH] Backend login failed:", loginResponse.status, await loginResponse.text());
+          return null;
+        }
 
         const loginData = await loginResponse.json();
 
@@ -50,7 +55,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           },
         });
 
-        if (!perfilResponse.ok) return null;
+        if (!perfilResponse.ok) {
+          console.error("[AUTH] Profile fetch failed:", perfilResponse.status, await perfilResponse.text());
+          return null;
+        }
 
         const perfil = await perfilResponse.json();
 
