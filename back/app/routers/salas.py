@@ -4,7 +4,12 @@ from app.crud import sala_crud
 from app.dependencies.auth_dependency import get_current_user
 from app.dependencies.db_dependency import get_db
 from app.schemas.endereco_schemas import EnderecoCreate
-from app.schemas.sala_schemas import SalaCreate, SalaFilterSearch, SalaResponse
+from app.schemas.sala_schemas import (
+    SalaCreate,
+    SalaFilterSearch,
+    SalaResponse,
+    SalaUpdatePayload,
+)
 from app.services import sala_service
 
 router = APIRouter(prefix="/salas", tags=["salas"])
@@ -36,6 +41,16 @@ async def buscar_por_id(id: int, db=Depends(get_db)):
     if not sala:
         raise HTTPException(status_code=404, detail="Sala não encontrada")
     return sala
+
+
+@router.patch("/{id}", response_model=SalaResponse)
+async def editar_por_id(
+    id: int,
+    payload: SalaUpdatePayload,
+    db=Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return sala_service.editar_sala(db, id, payload, user.id)
 
 
 @router.delete("/{id}")
