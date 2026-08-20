@@ -28,7 +28,7 @@ import { salaIdFromSlug } from "@/src/utils/slug";
 import type { FotoItem } from "@/src/services/salas.service";
 
 
-const API_URL = "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function numeroWhatsApp(numero?: string | null): string | null {
   if (!numero) return null;

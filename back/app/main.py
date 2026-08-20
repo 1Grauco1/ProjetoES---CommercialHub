@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -12,19 +13,21 @@ UPLOADS_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOADS_DIR.mkdir(exist_ok=True)
 
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+ALLOWED_ORIGINS_RAW = os.getenv("ALLOWED_ORIGINS", "")
+if ALLOWED_ORIGINS_RAW:
+    origins = [o.strip() for o in ALLOWED_ORIGINS_RAW.split(",") if o.strip()]
+else:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_credentials=True,
-    allow_methods=["*"],  # Libera POST, GET, DELETE, PUT, etc.
-    allow_headers=["*"],  # Libera os cabeçalhos como Authorization e Content-Type
-    allow_private_network=True,  # p/ Brave/Chrome ao acessar API em 127.0.0.1
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Seus roteadores existentes
