@@ -62,7 +62,7 @@ class Sala(Base):
     def proprietario_whatsapp(self) -> str | None:
         try:
             return self.usuario.pessoa.telefone or None
-        except AttributeError, InvalidRequestError:
+        except (AttributeError, InvalidRequestError):
             return None
 
     endereco = relationship("Endereco", back_populates="sala")
