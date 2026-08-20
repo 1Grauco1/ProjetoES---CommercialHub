@@ -9,6 +9,12 @@ from app.routers import auth, cep, contratos, pessoas, salas
 
 app = FastAPI(title="CommercialHub", version="1.0")
 
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 UPLOADS_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOADS_DIR.mkdir(exist_ok=True)
 
