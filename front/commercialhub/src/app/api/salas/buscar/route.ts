@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizarFotos } from '@/src/utils/media';
+import { BACKEND_URL } from '@/src/config';
 
-const backendUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
+const backendUrl = BACKEND_URL;
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));

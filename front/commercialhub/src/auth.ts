@@ -1,10 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-
-const BACKEND_URL =
-  process.env.API_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  "http://127.0.0.1:8000";
+import { BACKEND_URL } from "@/src/config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,

@@ -5,7 +5,7 @@ import { normalizarFotos } from '@/src/utils/media';
 import { buscarSalas } from '@/src/services/salas.service';
 import type { Sala } from '@/src/services/salas.service';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import { BACKEND_URL } from '@/src/config';
 
 export type FotoItem = string | { id?: number; url: string };
 
